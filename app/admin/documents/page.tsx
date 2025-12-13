@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface Document {
   id: string;
@@ -21,8 +22,12 @@ export default function AdminDocuments() {
   const [type, setType] = useState('Gia hạn');
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
+  const [mounted, setMounted] = useState(false);
+  const [activeTab, setActiveTab] = useState<'single' | 'bulk'>('single');
+  const router = useRouter();
 
   useEffect(() => {
+    setMounted(true);
     loadDocuments();
   }, []);
 
@@ -91,20 +96,16 @@ export default function AdminDocuments() {
       const file = files[i];
       if (!file.name.toLowerCase().endsWith('.pdf')) continue;
 
-      // Parse tên file: "24541 16092025 Hermes.pdf" -> code, date, name
       const nameWithoutExt = file.name.replace('.pdf', '').trim();
       const parts = nameWithoutExt.split(/\s+/);
       
-      let code = '';
       let dateStr = '';
       let nameStr = '';
 
       if (parts.length >= 3) {
-        code = parts[0];
         dateStr = parts[1];
         nameStr = parts.slice(2).join(' ');
       } else if (parts.length === 2) {
-        code = parts[0];
         nameStr = parts[1];
       } else {
         nameStr = nameWithoutExt;
@@ -161,12 +162,35 @@ export default function AdminDocuments() {
     }
   };
 
+  const handleLogout = async () => {
+    await fetch('/api/admin/login', { method: 'DELETE' });
+    router.push('/admin/login');
+  };
+
+  if (!mounted) {
+    return (
+      <div className="flex flex-col gap-8 max-w-6xl mx-auto">
+        <div className="bg-gray-100 h-96 rounded-lg animate-pulse"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-8 max-w-6xl mx-auto">
       {/* Header */}
       <header className="bg-gradient-to-r from-blue-900 to-blue-950 text-white p-5 lg:p-8 rounded-lg shadow-lg border-b-4 border-yellow-500">
-        <h1 className="text-2xl lg:text-3xl font-bold">⚙️ Admin: Quản lý Công văn</h1>
-        <p className="text-sm opacity-90 mt-2">Upload và quản lý danh sách công văn</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold">⚙️ Admin: Quản lý Công văn</h1>
+            <p className="text-sm opacity-90 mt-2">Upload và quản lý danh sách công văn</p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition active:scale-95 text-sm"
+          >
+            🚪 Đăng xuất
+          </button>
+        </div>
       </header>
 
       {/* Upload Form */}
@@ -176,126 +200,114 @@ export default function AdminDocuments() {
         {/* Tabs */}
         <div className="flex gap-3 mb-6 border-b-2 border-gray-200">
           <button
-            id="single-tab"
-            className="px-4 py-2 font-semibold text-blue-900 border-b-2 border-blue-900"
+            onClick={() => setActiveTab('single')}
+            className={`px-4 py-2 font-semibold border-b-2 transition ${activeTab === 'single' ? 'text-blue-900 border-blue-900' : 'text-gray-600 border-transparent'}`}
           >
             📄 Upload 1 file
           </button>
           <button
-            id="bulk-tab"
-            className="px-4 py-2 font-semibold text-gray-600 hover:text-blue-900 cursor-pointer"
-            onClick={() => {
-              document.getElementById('single-tab')?.classList.remove('border-b-2', 'border-blue-900', 'text-blue-900');
-              document.getElementById('single-tab')?.classList.add('text-gray-600');
-              document.getElementById('bulk-tab')?.classList.add('border-b-2', 'border-blue-900', 'text-blue-900');
-              document.getElementById('single-form')?.classList.add('hidden');
-              document.getElementById('bulk-form')?.classList.remove('hidden');
-            }}
+            onClick={() => setActiveTab('bulk')}
+            className={`px-4 py-2 font-semibold border-b-2 transition ${activeTab === 'bulk' ? 'text-blue-900 border-blue-900' : 'text-gray-600 border-transparent'}`}
           >
             📁 Upload nhiều file
           </button>
         </div>
 
         {/* Single File Form */}
-        <form id="single-form" onSubmit={handleUpload} className="space-y-4 lg:space-y-5">
-          {/* File Input */}
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2 text-sm lg:text-base">Chọn File PDF:</label>
-            <input
-              type="file"
-              accept=".pdf"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900 text-sm"
-            />
-            {file && <p className="text-sm text-green-600 mt-1">✓ {file.name}</p>}
-          </div>
-
-          {/* Name Input */}
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2 text-sm lg:text-base">Tên Sản phẩm / Thương hiệu:</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ví dụ: Hermes, MICRO SD HC, Nike..."
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900 text-sm"
-            />
-          </div>
-
-          {/* Date Input */}
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2 text-sm lg:text-base">Ngày (tuỳ chọn):</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900 text-sm"
-            />
-          </div>
-
-          {/* Type Select */}
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2 text-sm lg:text-base">Loại Công văn:</label>
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900 text-sm"
-            >
-              <option>Gia hạn</option>
-              <option>Cấp mới</option>
-              <option>Bảo hộ</option>
-              <option>Vi phạm</option>
-              <option>Khác</option>
-            </select>
-          </div>
-
-          {/* Message */}
-          {message && (
-            <div className={`p-3 rounded-lg text-sm font-semibold ${message.startsWith('✓') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-              {message}
+        {activeTab === 'single' && (
+          <form onSubmit={handleUpload} className="space-y-4 lg:space-y-5">
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2 text-sm lg:text-base">Chọn File PDF:</label>
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900 text-sm"
+              />
+              {file && <p className="text-sm text-green-600 mt-1">✓ {file.name}</p>}
             </div>
-          )}
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={uploading}
-            className="w-full bg-blue-900 hover:bg-blue-950 disabled:opacity-60 text-white px-6 py-3 rounded-lg font-semibold border-2 border-yellow-500 transition active:scale-95 text-sm lg:text-base"
-          >
-            {uploading ? '⏳ Đang upload...' : '📤 Upload Công văn'}
-          </button>
-        </form>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2 text-sm lg:text-base">Tên Sản phẩm / Thương hiệu:</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ví dụ: Hermes, MICRO SD HC, Nike..."
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900 text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2 text-sm lg:text-base">Ngày (tuỳ chọn):</label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900 text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2 text-sm lg:text-base">Loại Công văn:</label>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900 text-sm"
+              >
+                <option>Gia hạn</option>
+                <option>Cấp mới</option>
+                <option>Bảo hộ</option>
+                <option>Vi phạm</option>
+                <option>Khác</option>
+              </select>
+            </div>
+
+            {message && (
+              <div className={`p-3 rounded-lg text-sm font-semibold ${message.startsWith('✓') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                {message}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={uploading}
+              className="w-full bg-blue-900 hover:bg-blue-950 disabled:opacity-60 text-white px-6 py-3 rounded-lg font-semibold border-2 border-yellow-500 transition active:scale-95 text-sm lg:text-base"
+            >
+              {uploading ? '⏳ Đang upload...' : '📤 Upload Công văn'}
+            </button>
+          </form>
+        )}
 
         {/* Bulk Upload Form */}
-        <div id="bulk-form" className="hidden space-y-4 lg:space-y-5">
-          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <p className="text-sm text-blue-900">
-              💡 <strong>Cách sử dụng:</strong> Chọn thư mục hoặc nhiều file PDF. <br/>
-              Tên file nên theo định dạng: <code className="bg-white px-2 py-1 rounded">MÃCV NGÀY TÊN.pdf</code> <br/>
-              Ví dụ: <code className="bg-white px-2 py-1 rounded">24541 16092025 Hermes.pdf</code>
-            </p>
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2 text-sm lg:text-base">Chọn nhiều file PDF:</label>
-            <input
-              type="file"
-              multiple
-              accept=".pdf"
-              onChange={handleBulkUpload}
-              disabled={uploading}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900 text-sm disabled:opacity-60"
-            />
-            <p className="text-xs text-gray-500 mt-2">📂 Bạn có thể chọn cả thư mục hoặc chọn nhiều file cùng lúc</p>
-          </div>
-
-          {/* Message */}
-          {message && (
-            <div className={`p-3 rounded-lg text-sm font-semibold ${message.startsWith('✓') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-              {message}
+        {activeTab === 'bulk' && (
+          <div className="space-y-4 lg:space-y-5">
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <p className="text-sm text-blue-900">
+                💡 <strong>Cách sử dụng:</strong> Chọn thư mục hoặc nhiều file PDF. Tên file nên theo định dạng: MÃCV NGÀY TÊN.pdf Ví dụ: 24541 16092025 Hermes.pdf
+              </p>
             </div>
-          )}
-        </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2 text-sm lg:text-base">Chọn nhiều file PDF:</label>
+              <input
+                type="file"
+                multiple
+                accept=".pdf"
+                onChange={handleBulkUpload}
+                disabled={uploading}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-900 text-sm disabled:opacity-60"
+              />
+              <p className="text-xs text-gray-500 mt-2">📂 Bạn có thể chọn cả thư mục hoặc chọn nhiều file cùng lúc</p>
+            </div>
+
+            {message && (
+              <div className={`p-3 rounded-lg text-sm font-semibold ${message.startsWith('✓') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                {message}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Documents List */}
@@ -305,7 +317,7 @@ export default function AdminDocuments() {
         {documents.length === 0 ? (
           <p className="text-gray-600 text-center py-8">Chưa có công văn nào. Hãy thêm công văn đầu tiên.</p>
         ) : (
-          <div className="space-y-3 lg:space-y-4 overflow-x-auto">
+          <div className="overflow-x-auto">
             <table className="w-full text-sm lg:text-base">
               <thead>
                 <tr className="bg-gray-100 border-b-2 border-gray-300">
