@@ -3,20 +3,164 @@
     {
       "id": "24541",
       "code": "24541",
-      "date": "16/09/2025",
+      "date": "16092025",
       "name": "Hermes",
-      "filename": "24541_16092025_hermes.pdf",
+      "filename": "24541_16092025_Hermes.pdf",
       "type": "Gia hạn",
-      "description": "Công văn gia hạn bảo hộ cho Hermes"
+      "description": "Công văn Gia hạn bảo hộ cho Hermes"
     },
     {
       "id": "17738",
       "code": "17738",
-      "date": "05/08/2025",
-      "name": "MICRO SD HC",
-      "filename": "17738_05082025_micro_sd_hc.pdf",
+      "date": "05082025",
+      "name": "MICRO SD HC; MICRO SD XC và SD SMART",
+      "filename": "17738_05082025_MICRO_SD_HC__MICRO_SD_XC_v__SD_SMART.pdf",
       "type": "Gia hạn",
-      "description": "Công văn gia hạn bảo hộ cho MICRO SD HC"
+      "description": "Công văn Gia hạn bảo hộ cho MICRO SD HC; MICRO SD XC và SD SMART"
+    },
+    {
+      "id": "26770",
+      "code": "26770",
+      "date": "30092025",
+      "name": "A, LST, UBS, C, DODGERS, LA, SF, MLB, P, B, D, YANKEES, NY",
+      "filename": "26770_30092025_A__LST__UBS__C__DODGERS__LA__SF__MLB__P__B__D__YANKEES__NY.pdf",
+      "type": "Gia hạn",
+      "description": "Công văn Gia hạn bảo hộ cho A, LST, UBS, C, DODGERS, LA, SF, MLB, P, B, D, YANKEES, NY"
+    },
+    {
+      "id": "27317",
+      "code": "27317",
+      "date": "02102025",
+      "name": "Pixel",
+      "filename": "27317_02102025_Pixel.pdf",
+      "type": "Gia hạn",
+      "description": "Công văn Gia hạn bảo hộ cho Pixel"
+    },
+    {
+      "id": "27892",
+      "code": "27892",
+      "date": "06102025",
+      "name": "COMFORT, LIFEBUOY, DOVE, SUNSILK",
+      "filename": "27892_06102025_COMFORT__LIFEBUOY__DOVE__SUNSILK.pdf",
+      "type": "Gia hạn",
+      "description": "Công văn Gia hạn bảo hộ cho COMFORT, LIFEBUOY, DOVE, SUNSILK"
+    },
+    {
+      "id": "27974",
+      "code": "27974",
+      "date": "06102025",
+      "name": "Jtekt",
+      "filename": "27974_06102025_Jtekt.pdf",
+      "type": "Gia hạn",
+      "description": "Công văn Gia hạn bảo hộ cho Jtekt"
+    },
+    {
+      "id": "28540",
+      "code": "28540",
+      "date": "08102025",
+      "name": "Oakley",
+      "filename": "28540_08102025_Oakley.pdf",
+      "type": "Gia hạn",
+      "description": "Công văn Gia hạn bảo hộ cho Oakley"
+    },
+    {
+      "id": "28613",
+      "code": "28613",
+      "date": "09102025",
+      "name": "Viagra",
+      "filename": "28613_09102025_Viagra.pdf",
+      "type": "Gia hạn",
+      "description": "Công văn Gia hạn bảo hộ cho Viagra"
+    },
+    {
+      "id": "28616",
+      "code": "28616",
+      "date": "09102025",
+      "name": "Ray-ban",
+      "filename": "28616_09102025_Ray-ban.pdf",
+      "type": "Gia hạn",
+      "description": "Công văn Gia hạn bảo hộ cho Ray-ban"
+    },
+    {
+      "id": "29600",
+      "code": "29600",
+      "date": "15102025",
+      "name": "Hermes",
+      "filename": "29600_15102025_Hermes.pdf",
+      "type": "Gia hạn",
+      "description": "Công văn Gia hạn bảo hộ cho Hermes"
+    },
+    {
+      "id": "29602",
+      "code": "29602",
+      "date": "15102025",
+      "name": "Wahl",
+      "filename": "29602_15102025_Wahl.pdf",
+      "type": "Gia hạn",
+      "description": "Công văn Gia hạn bảo hộ cho Wahl"
+    },
+    {
+      "id": "30040",
+      "code": "30040",
+      "date": "17102025",
+      "name": "Super Taper",
+      "filename": "30040_17102025_Super_Taper.pdf",
+      "type": "Gia hạn",
+      "description": "Công văn Gia hạn bảo hộ cho Super Taper"
+    },
+    {
+      "id": "30091",
+      "code": "30091",
+      "date": "17102025",
+      "name": "Persol",
+      "filename": "30091_17102025_Persol.pdf",
+      "type": "Gia hạn",
+      "description": "Công văn Gia hạn bảo hộ cho Persol"
+    },
+    {
+      "id": "33871",
+      "code": "33871",
+      "date": "13112025",
+      "name": "Ingco",
+      "filename": "33871_13112025_Ingco.pdf",
+      "type": "Gia hạn",
+      "description": "Công văn Gia hạn bảo hộ cho Ingco"
+    },
+    {
+      "id": "35511",
+      "code": "35511",
+      "date": "13112025",
+      "name": "Nokia",
+      "filename": "35511_13112025_Nokia.pdf",
+      "type": "Gia hạn",
+      "description": "Công văn Gia hạn bảo hộ cho Nokia"
+    },
+    {
+      "id": "35512",
+      "code": "35512",
+      "date": "13112025",
+      "name": "Innisfree",
+      "filename": "35512_13112025_Innisfree.pdf",
+      "type": "Gia hạn",
+      "description": "Công văn Gia hạn bảo hộ cho Innisfree"
+    },
+    {
+      "id": "35634",
+      "code": "35634",
+      "date": "13112025",
+      "name": "Blum",
+      "filename": "35634_13112025_Blum.pdf",
+      "type": "Gia hạn",
+      "description": "Công văn Gia hạn bảo hộ cho Blum"
+    },
+    {
+      "id": "35642",
+      "code": "35642",
+      "date": "13112025",
+      "name": "PREVATHON, FMC",
+      "filename": "35642_13112025_PREVATHON__FMC.pdf",
+      "type": "Gia hạn",
+      "description": "Công văn Gia hạn bảo hộ cho PREVATHON, FMC"
     }
   ]
 }
