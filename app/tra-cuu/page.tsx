@@ -52,32 +52,27 @@ export default function TraCuu() {
     }
 
     if (searchType === 'cong-van') {
-      // Tìm kiếm công văn
+      // Tìm kiếm công văn từ dữ liệu thực
       const filtered = documents.filter(doc =>
         doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         doc.code.includes(searchQuery) ||
         doc.description.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      setResults(filtered as any[]);
-    } else {
-      // Tìm kiếm khác
-      const mockResults = [
-        {
-          id: 1,
-          name: 'Sản phẩm: ' + searchQuery,
-          type: 'Hàng hóa',
-          status: 'Có hàng giả',
-          description: 'Đã phát hiện vi phạm sở hữu trí tuệ'
-        },
-        {
-          id: 2,
-          name: 'Nhà sản xuất: ' + searchQuery,
-          type: 'Nhà sản xuất',
-          status: 'Bình thường',
-          description: 'Không phát hiện vi phạm'
-        }
-      ];
-      setResults(mockResults);
+      setResults(filtered);
+    } else if (searchType === 'san-pham') {
+      // Tìm kiếm sản phẩm trong công văn (nếu tên sản phẩm nằm trong tên công văn)
+      const filtered = documents.filter(doc =>
+        doc.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setResults(filtered);
+    } else if (searchType === 'vi-pham') {
+      // Hiển thị công văn liên quan đến vi phạm
+      const filtered = documents.filter(doc =>
+        doc.description.toLowerCase().includes('vi phạm') ||
+        doc.type.toLowerCase().includes('vi phạm') ||
+        doc.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setResults(filtered);
     }
     setSearched(true);
   };
@@ -168,56 +163,73 @@ export default function TraCuu() {
       {/* Results */}
       {searched && (
         <div className="max-w-4xl">
-          <h2 className="text-lg lg:text-xl font-bold text-gray-800 mb-4">Kết quả tìm kiếm ({results.length})</h2>
-          <div className="space-y-3 lg:space-y-4">
-            {results.map((result, idx) => (
-              <div key={result.id || idx} className="bg-white p-4 lg:p-6 rounded-xl border-l-4 border-indigo-600 shadow hover:shadow-lg transition">
-                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-3 mb-3">
-                  <div className="flex-1">
-                    <h3 className="text-base lg:text-lg font-bold text-blue-900">
-                      {searchType === 'cong-van' ? `CV ${result.code} - ${result.name}` : result.name}
-                    </h3>
-                    <p className="text-gray-600 text-sm mt-1.5 leading-relaxed">{result.description}</p>
-                    {searchType === 'cong-van' && (
-                      <p className="text-xs text-gray-500 mt-1">📅 {result.date}</p>
+          <div className="mb-6 p-4 lg:p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+            <h2 className="text-xl lg:text-2xl font-bold text-blue-900 mb-2">
+              📋 Kết quả tìm kiếm: {results.length}
+              {results.length === 0 ? ' (Không tìm thấy)' : ' công văn'}
+            </h2>
+            <p className="text-gray-600 text-sm">
+              {results.length > 0 
+                ? `Tìm thấy ${results.length} công văn liên quan`
+                : 'Vui lòng thay đổi từ khóa và thử lại'}
+            </p>
+          </div>
+
+          {results.length === 0 ? (
+            <div className="bg-white p-8 rounded-xl text-center">
+              <p className="text-gray-500 text-lg">Không tìm thấy công văn phù hợp</p>
+              <p className="text-gray-400 text-sm mt-2">Hãy thử tìm kiếm với từ khóa khác</p>
+            </div>
+          ) : (
+            <div className="space-y-3 lg:space-y-4">
+              {results.map((result, idx) => (
+                <div key={result.id || idx} className="bg-white p-4 lg:p-6 rounded-xl border-l-4 border-indigo-600 shadow hover:shadow-lg transition hover:scale-105 transform">
+                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-4">
+                    <div className="flex-1">
+                      <div className="flex items-start gap-3 mb-2">
+                        <span className="text-2xl">📄</span>
+                        <div className="flex-1">
+                          <h3 className="text-base lg:text-lg font-bold text-blue-900">
+                            CV {result.code} - {result.name}
+                          </h3>
+                          <p className="text-gray-500 text-xs mt-0.5">
+                            📅 Ngày: {result.date.slice(0, 2)}/{result.date.slice(2, 4)}/{result.date.slice(4)}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-gray-600 text-sm mt-2.5 leading-relaxed">
+                        {result.description}
+                      </p>
+                    </div>
+                    <span className="px-3 lg:px-4 py-1.5 lg:py-2 rounded-full text-xs lg:text-sm font-semibold w-fit bg-blue-100 text-blue-900 flex-shrink-0">
+                      {result.type}
+                    </span>
+                  </div>
+                  <div className="flex gap-2 lg:gap-3 mt-4 flex-wrap">
+                    {result.filename && (
+                      <>
+                        <a
+                          href={`/documents/${result.filename}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-green-600 hover:bg-green-700 text-white px-3 lg:px-4 py-1.5 lg:py-2 rounded-full text-xs lg:text-sm font-semibold transition active:scale-95"
+                        >
+                          👁️ Xem PDF
+                        </a>
+                        <a
+                          href={`/documents/${result.filename}`}
+                          download
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 lg:px-4 py-1.5 lg:py-2 rounded-full text-xs lg:text-sm font-semibold transition active:scale-95"
+                        >
+                          ⬇️ Tải xuống
+                        </a>
+                      </>
                     )}
                   </div>
-                  <span className={`px-3 lg:px-4 py-1.5 lg:py-2 rounded-full text-xs lg:text-sm font-semibold w-fit ${
-                    searchType === 'cong-van'
-                      ? 'bg-blue-100 text-blue-900'
-                      : result.status === 'Có hàng giả'
-                      ? 'bg-red-100 text-red-700'
-                      : 'bg-green-100 text-green-700'
-                  }`}>
-                    {searchType === 'cong-van' ? result.type : result.status}
-                  </span>
                 </div>
-                <div className="flex gap-2 lg:gap-3 mt-3 lg:mt-4 flex-wrap">
-                  {searchType === 'cong-van' && result.filename ? (
-                    <>
-                      <a
-                        href={`/documents/${result.filename}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-green-600 hover:bg-green-700 text-white px-3 lg:px-4 py-1.5 lg:py-2 rounded-full text-xs lg:text-sm font-semibold transition active:scale-95"
-                      >
-                        👁️ Xem PDF
-                      </a>
-                      <a
-                        href={`/documents/${result.filename}`}
-                        download
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 lg:px-4 py-1.5 lg:py-2 rounded-full text-xs lg:text-sm font-semibold transition active:scale-95"
-                      >
-                        ⬇️ Tải xuống
-                      </a>
-                    </>
-                  ) : (
-                    <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-semibold">{result.type}</span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
