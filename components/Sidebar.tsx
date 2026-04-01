@@ -98,10 +98,21 @@ export default function Sidebar() {
                 </div>
 
                 <div className="flex flex-col">
-                  <span className="text-xs font-black tracking-tight flex items-center gap-1.5 line-clamp-1">
-                    {item.label}
-                    {item.activeIcon && isActive && <span className="text-[#facc15] text-[10px]">+</span>}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-black tracking-tight line-clamp-1">
+                      {item.label}
+                    </span>
+                    {item.label === 'Tra Cứu' && (
+                      <span className="flex items-center gap-1 bg-emerald-500/20 text-emerald-400 text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md border border-emerald-500/20">
+                         Eng
+                      </span>
+                    )}
+                    {item.label === 'Trợ lý SHTT' && (
+                      <span className="flex items-center gap-1 bg-purple-500/20 text-purple-400 text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md border border-purple-500/20">
+                         Mkt
+                      </span>
+                    )}
+                  </div>
                   <span className="text-[9px] font-bold opacity-60 tracking-wider group-hover:opacity-100">{item.subLabel}</span>
                 </div>
 
@@ -111,9 +122,29 @@ export default function Sidebar() {
           })}
         </nav>
 
-        {/* Floating Chat Status (Optional but for consistency) */}
-        <div className="p-6">
-          <div className="bg-yellow-500/5 rounded-2xl p-4 border border-yellow-500/10 mb-4 hidden lg:block">
+        {/* Skill Orchestration Status */}
+        <div className="px-6 pb-6 space-y-3">
+          <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10">
+            <div className="flex items-center justify-between mb-2">
+               <span className="text-[9px] font-black text-blue-200/60 uppercase tracking-widest">Skill Orchestration</span>
+               <div className="flex gap-1">
+                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                 <div className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" style={{ animationDelay: '0.5s' }} />
+               </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[8px] font-bold text-white/40 uppercase">Engineer</span>
+                <span className="text-[8px] font-black text-emerald-400">ACTIVE</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[8px] font-bold text-white/40 uppercase">Marketing</span>
+                <span className="text-[8px] font-black text-purple-400">ACTIVE</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-yellow-500/5 rounded-2xl p-4 border border-yellow-500/10 hidden lg:block">
             <div className="flex items-center gap-2 mb-2">
                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
                <span className="text-[10px] font-black text-blue-200 uppercase tracking-widest">Hệ thống sẵn sàng</span>

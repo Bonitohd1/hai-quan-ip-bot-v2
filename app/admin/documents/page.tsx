@@ -1,177 +1,68 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
   FilePlus, 
-  Files, 
-  Trash2, 
-  Eye, 
-  LogOut, 
-  Settings, 
   Upload, 
-  Info,
+  Trash2, 
+  FileText, 
+  Search, 
+  Settings, 
+  LogOut, 
+  LayoutDashboard, 
+  Download,
+  AlertTriangle,
   CheckCircle2,
-  AlertCircle,
-  FileText,
-  Search as SearchIcon,
-  Filter
+  Package,
+  ShieldAlert,
+  ArrowUpRight,
+  ChevronRight,
+  Database,
+  BarChart3,
+  Users
 } from 'lucide-react';
 
 interface Document {
   id: string;
   code: string;
-  date: string;
   name: string;
-  filename: string;
   type: string;
-  description: string;
+  date: string;
+  filename: string;
 }
 
 export default function AdminDocuments() {
   const [documents, setDocuments] = useState<Document[]>([]);
-  const [file, setFile] = useState<File | null>(null);
-  const [name, setName] = useState('');
-  const [date, setDate] = useState('');
-  const [type, setType] = useState('Gia hạn');
-  const [uploading, setUploading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState<'single' | 'bulk'>('single');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState({ text: '', type: '' });
   const router = useRouter();
 
+  const [singleForm, setSingleForm] = useState({
+    code: '',
+    name: '',
+    type: 'Gia hạn',
+    date: new Date().toISOString().split('T')[0].split('-').reverse().join(''),
+    description: '',
+    file: null as File | null
+  });
+
   useEffect(() => {
-    setMounted(true);
-    loadDocuments();
+    fetchDocuments();
   }, []);
 
-  const loadDocuments = async () => {
+  const fetchDocuments = async (q = '') => {
+    setIsLoading(true);
     try {
-      const res = await fetch('/api/documents');
+      const res = await fetch(`/api/documents?q=${encodeURIComponent(q)}`);
       const data = await res.json();
       setDocuments(data.documents || []);
-    } catch (error) {
-      console.error('Error loading documents:', error);
-    }
-  };
-
-  const handleUpload = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!file || !name.trim()) {
-      setMessage('Vui lòng chọn file và nhập tên');
-      return;
-    }
-
-    setUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('name', name);
-    formData.append('date', date || new Date().toLocaleDateString('vi-VN'));
-    formData.append('type', type);
-
-    try {
-      const res = await fetch('/api/documents', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (res.ok) {
-        setMessage('✓ Upload thành công');
-        setFile(null);
-        setName('');
-        setDate('');
-        setType('Gia hạn');
-        setTimeout(() => {
-          loadDocuments();
-          setMessage('');
-        }, 1000);
-      } else {
-        const error = await res.json();
-        setMessage(`✗ Lỗi: ${error.error}`);
-      }
-    } catch (error) {
-      setMessage('✗ Lỗi upload');
+    } catch (err) {
+      console.error('Fetch error:', err);
     } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleBulkUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    setUploading(true);
-    setMessage('⏳ Đang upload hàng loạt...');
-
-    let uploaded = 0;
-    let failed = 0;
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (!file.name.toLowerCase().endsWith('.pdf')) continue;
-
-      const nameWithoutExt = file.name.replace('.pdf', '').trim();
-      const parts = nameWithoutExt.split(/\s+/);
-      
-      let dateStr = '';
-      let nameStr = '';
-
-      if (parts.length >= 3) {
-        dateStr = parts[1];
-        nameStr = parts.slice(2).join(' ');
-      } else if (parts.length === 2) {
-        nameStr = parts[1];
-      } else {
-        nameStr = nameWithoutExt;
-      }
-
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('name', nameStr || 'Không xác định');
-      formData.append('date', dateStr || new Date().toLocaleDateString('vi-VN'));
-      formData.append('type', 'Gia hạn');
-
-      try {
-        const res = await fetch('/api/documents', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (res.ok) uploaded++;
-        else failed++;
-      } catch (error) {
-        failed++;
-      }
-    }
-
-    setMessage(`✓ Hoàn tất: ${uploaded} thành công, ${failed} lỗi`);
-    setTimeout(() => {
-      loadDocuments();
-      setMessage('');
-      setUploading(false);
-    }, 2000);
-  };
-
-  const handleDelete = async (code: string) => {
-    if (!confirm('Xác nhận xóa công văn này?')) return;
-
-    try {
-      const res = await fetch('/api/documents', {
-        method: 'DELETE',
-        body: JSON.stringify({ code }),
-      });
-
-      if (res.ok) {
-        setMessage('✓ Đã xóa công văn');
-        setTimeout(() => {
-          loadDocuments();
-          setMessage('');
-        }, 1000);
-      }
-    } catch (error) {
-      setMessage('✗ Lỗi xóa');
+      setIsLoading(false);
     }
   };
 
@@ -180,266 +71,333 @@ export default function AdminDocuments() {
     router.push('/admin/login');
   };
 
-  const filteredDocs = documents.filter(doc => 
-    doc.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    doc.code.includes(searchQuery)
-  );
+  const handleSingleUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUploadLoading(true);
+    setUploadMessage({ text: '', type: '' });
 
-  if (!mounted) return null;
+    try {
+      const formData = new FormData();
+      formData.append('code', singleForm.code);
+      formData.append('name', singleForm.name);
+      formData.append('type', singleForm.type);
+      formData.append('date', singleForm.date);
+      formData.append('description', singleForm.description);
+      if (singleForm.file) formData.append('file', singleForm.file);
+
+      const res = await fetch('/api/documents', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        setUploadMessage({ text: 'Hệ thống đã nhận tệp và lưu trữ thành công.', type: 'success' });
+        setSingleForm({ code: '', name: '', type: 'Gia hạn', date: '', description: '', file: null });
+        fetchDocuments();
+      } else {
+        const data = await res.json();
+        setUploadMessage({ text: data.error || 'Lỗi xử lý tệp tin', type: 'error' });
+      }
+    } catch (err) {
+      setUploadMessage({ text: 'Lỗi hệ thống nghiêm trọng', type: 'error' });
+    } finally {
+      setUploadLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Hành động này không thể hoàn tác. Bạn chắc chắn muốn xóa?')) return;
+    try {
+      const res = await fetch(`/api/documents/${id}`, { method: 'DELETE' });
+      if (res.ok) fetchDocuments();
+    } catch (err) {
+      console.error('Delete error:', err);
+    }
+  };
 
   return (
-    <div className="flex flex-col gap-10">
-      {/* Premium Header */}
-      <header className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/5 p-8 lg:p-12 shadow-2xl backdrop-blur-xl">
-        <div className="absolute top-0 right-0 p-20 -translate-y-1/2 translate-x-1/2 w-80 h-80 bg-blue-600/10 blur-[100px] rounded-full" />
-        <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="flex items-center gap-6">
-            <div className="w-16 h-16 rounded-3xl bg-blue-600/20 border border-blue-500/20 flex items-center justify-center shadow-xl">
-              <Settings className="w-8 h-8 text-blue-400 animate-spin-slow" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-black text-white tracking-tighter">Bảng Điều Khiển <span className="text-yellow-400 lowercase">Admin</span></h1>
-              <p className="text-blue-100/40 text-xs font-bold uppercase tracking-[0.2em] mt-1">Cơ sở dữ liệu Công văn HQ</p>
-            </div>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="group flex items-center gap-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-6 py-3 rounded-2xl font-bold transition-all border border-red-500/20 active:scale-95 text-sm"
+    <div className="min-h-screen bg-[#020617] text-white flex flex-col font-sans relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-600/5 blur-[120px] rounded-full -z-10" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-600/5 blur-[120px] rounded-full -z-10" />
+
+      {/* Control Navigation */}
+      <nav className="h-24 px-12 flex items-center justify-between border-b border-white/5 backdrop-blur-3xl sticky top-0 z-50">
+        <div className="flex items-center gap-12 h-full">
+          <div 
+            className="flex items-center gap-4 cursor-pointer group"
+            onClick={() => router.push('/')}
           >
-            <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            Đăng xuất
-          </button>
+             <div className="w-12 h-12 bg-gradient-to-br from-[#1a2b56] to-[#020617] rounded-2xl flex items-center justify-center border border-white/10 shadow-2xl group-hover:rotate-6 transition-transform">
+                <Settings className="w-6 h-6 text-yellow-400 group-hover:animate-spin-slow" />
+             </div>
+             <div className="flex flex-col">
+                <span className="text-lg font-black tracking-tighter uppercase italic">Control Center</span>
+                <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.5em] mt-0.5">Admin Management</span>
+             </div>
+          </div>
+          
+          <div className="hidden lg:flex items-center gap-10 h-full pl-12 border-l border-white/5">
+             <NavLink active label="Data Vault" icon={<Database className="w-4 h-4" />} />
+             <NavLink label="Analytics" icon={<BarChart3 className="w-4 h-4" />} />
+             <NavLink label="Personnel" icon={<Users className="w-4 h-4" />} />
+             <NavLink label="Security Logs" icon={<ShieldAlert className="w-4 h-4" />} />
+          </div>
         </div>
-      </header>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
-        
-        {/* Left: Upload Section */}
-        <div className="xl:col-span-4 flex flex-col gap-6">
-          <section className="bg-white/5 border border-white/10 glass-effect rounded-[2.5rem] p-8 lg:p-10 shadow-2xl relative overflow-hidden group">
-            <h2 className="text-xl font-black text-white mb-8 flex items-center gap-3">
-              <span className="p-2 bg-yellow-500/10 rounded-xl text-yellow-500"><Upload className="w-5 h-5" /></span>
-              Cập nhật dữ liệu
-            </h2>
+        <button 
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-8 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest border border-red-500/20 active:scale-95"
+        >
+          <LogOut className="w-4 h-4" />
+          End Session
+        </button>
+      </nav>
 
-            {/* Tab Switcher */}
-            <div className="flex p-1 bg-black/40 rounded-2xl border border-white/5 mb-8">
-              <button
-                onClick={() => setActiveTab('single')}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold transition-all ${
-                  activeTab === 'single' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'
-                }`}
-              >
-                <FilePlus className="w-4 h-4" />
-                Đơn lẻ
-              </button>
-              <button
-                onClick={() => setActiveTab('bulk')}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold transition-all ${
-                  activeTab === 'bulk' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'
-                }`}
-              >
-                <Files className="w-4 h-4" />
-                Hàng loạt
-              </button>
+      <div className="flex flex-col lg:flex-row flex-1 p-8 lg:p-14 gap-12 h-auto max-w-screen-2xl mx-auto w-full">
+        {/* Upload Terminal */}
+        <aside className="lg:w-[450px] w-full shrink-0">
+          <div className="bg-white/5 backdrop-blur-3xl p-10 rounded-[4rem] border border-white/10 shadow-3xl relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-amber-600 shadow-[0_0_20px_rgba(250,204,21,0.5)]" />
+            
+            <div className="flex items-center gap-6 mb-12">
+               <div className="w-16 h-16 bg-white/5 rounded-3xl flex items-center justify-center text-yellow-400 shadow-inner group-hover:rotate-12 transition-transform duration-700 border border-white/5">
+                  <FilePlus className="w-8 h-8" />
+               </div>
+               <div className="space-y-1">
+                  <h2 className="text-2xl font-black text-white italic uppercase tracking-tighter">Data Ingestion</h2>
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Hệ thống tải tệp tin bảo mật</p>
+               </div>
             </div>
 
-            {activeTab === 'single' ? (
-              <form onSubmit={handleUpload} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-blue-100/40 ml-2">File PDF Công văn</label>
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-white/10 rounded-2xl hover:border-blue-500/50 hover:bg-blue-500/5 transition-all cursor-pointer group/upload">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <Upload className="w-8 h-8 text-gray-500 group-hover/upload:text-blue-400 group-hover/upload:scale-110 transition-all mb-2" />
-                      <p className="text-xs text-gray-500 font-bold group-hover/upload:text-blue-200 transition-colors">
-                        {file ? file.name : 'Nhấn để chọn file'}
-                      </p>
-                    </div>
-                    <input type="file" accept=".pdf" className="hidden" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-                  </label>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-blue-100/40 ml-2">Tên thương hiệu / Sản phẩm</label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="VD: Nike, Adidas, Casio..."
-                    className="w-full bg-black/30 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all font-bold"
+            <form onSubmit={handleSingleUpload} className="space-y-6">
+               <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Product / Trademark Name</label>
+                  <input 
+                    type="text" 
+                    value={singleForm.name}
+                    onChange={e => setSingleForm({...singleForm, name: e.target.value})}
+                    placeholder="VD: Gia hạn Hermes, Cấp mới Nike..."
+                    className="w-full px-6 py-5 bg-white/5 border border-white/5 rounded-3xl outline-none focus:bg-white/10 focus:border-yellow-400/50 font-bold text-sm transition-all placeholder:text-slate-600"
+                    required
                   />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-blue-100/40 ml-2">Ngày</label>
-                    <input
-                      type="date"
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      className="w-full bg-black/30 border border-white/10 rounded-2xl px-4 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all font-bold text-sm"
+               </div>
+               <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Case ID / Mã CV</label>
+                    <input 
+                      type="text" 
+                      value={singleForm.code}
+                      onChange={e => setSingleForm({...singleForm, code: e.target.value})}
+                      placeholder="VD: 24541"
+                      className="w-full px-6 py-5 bg-white/5 border border-white/5 rounded-3xl outline-none focus:bg-white/10 focus:border-yellow-400/50 font-bold text-sm transition-all placeholder:text-slate-600 uppercase"
+                      required
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-blue-100/40 ml-2">Loại hình</label>
-                    <select
-                      value={type}
-                      onChange={(e) => setType(e.target.value)}
-                      className="w-full bg-black/30 border border-white/10 rounded-2xl px-4 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all font-bold text-sm"
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Security Level</label>
+                    <select 
+                      value={singleForm.type}
+                      onChange={e => setSingleForm({...singleForm, type: e.target.value})}
+                      className="w-full px-6 py-5 bg-white/5 border border-white/5 rounded-3xl outline-none focus:bg-white/10 focus:border-yellow-400/50 font-black text-sm transition-all cursor-pointer appearance-none uppercase tracking-tighter"
                     >
-                      <option>Gia hạn</option>
-                      <option>Cấp mới</option>
-                      <option>Bảo hộ</option>
-                      <option>Khác</option>
+                       <option className="bg-[#020617]">Gia hạn</option>
+                       <option className="bg-[#020617]">Cấp mới</option>
+                       <option className="bg-[#020617]">Thông tư</option>
+                       <option className="bg-[#020617]">Luật SHTT</option>
+                       <option className="bg-[#020617]">Vi phạm</option>
                     </select>
                   </div>
+               </div>
+
+               <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Digital Document (PDF)</label>
+                  <div className="relative border-2 border-dashed border-white/10 rounded-[2.5rem] p-10 flex flex-col items-center justify-center gap-4 bg-white/5 hover:bg-white/10 hover:border-yellow-400/30 transition-all cursor-pointer group/upload">
+                     <input 
+                      type="file" 
+                      onChange={e => setSingleForm({...singleForm, file: e.target.files?.[0] || null})}
+                      className="absolute inset-0 opacity-0 cursor-pointer" 
+                     />
+                     <div className="w-14 h-14 bg-white/5 rounded-3xl flex items-center justify-center border border-white/10 shadow-2xl group-hover/upload:scale-110 transition-transform">
+                        <Upload className="w-6 h-6 text-slate-400 group-hover/upload:text-yellow-400 transition-colors" />
+                     </div>
+                     <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">
+                       {singleForm.file ? singleForm.file.name : 'Select or drop secure file'}
+                     </p>
+                  </div>
+               </div>
+
+               {uploadMessage.text && (
+                 <div className={`p-5 rounded-[2rem] flex items-center gap-4 animate-fade-in ${uploadMessage.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                    {uploadMessage.type === 'success' ? <CheckCircle2 className="w-5 h-5 shrink-0" /> : <AlertTriangle className="w-5 h-5 shrink-0" />}
+                    <p className="text-[11px] font-black uppercase tracking-widest leading-tight">{uploadMessage.text}</p>
+                 </div>
+               )}
+
+               <button 
+                type="submit"
+                disabled={uploadLoading}
+                className="w-full py-6 bg-gradient-to-r from-yellow-500 to-amber-600 text-[#020617] rounded-[2rem] font-black text-sm uppercase tracking-[0.3em] shadow-3xl shadow-yellow-400/10 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+               >
+                 {uploadLoading ? <div className="w-5 h-5 border-2 border-[#020617]/20 border-t-[#020617] rounded-full animate-spin" /> : <ShieldAlert className="w-4 h-4" />}
+                 {uploadLoading ? 'Processing...' : 'Authorize Upload'}
+               </button>
+            </form>
+          </div>
+        </aside>
+
+        {/* Main Vault Terminal */}
+        <main className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
+          <div className="bg-white/5 backdrop-blur-3xl rounded-[4rem] h-full flex flex-col overflow-hidden relative border border-white/10 shadow-3xl">
+             {/* Terminal Header */}
+             <div className="p-10 border-b border-white/5 flex flex-col lg:flex-row justify-between items-center gap-8 bg-gradient-to-b from-white/5 to-transparent">
+                <div className="flex items-center gap-6">
+                   <div className="w-14 h-14 bg-white/5 rounded-3xl flex items-center justify-center text-slate-500 shadow-inner border border-white/5">
+                      <Database className="w-6 h-6" />
+                   </div>
+                   <div className="space-y-1">
+                      <h2 className="text-2xl font-black text-white italic uppercase tracking-tighter">Encrypted Vault</h2>
+                      <div className="flex items-center gap-3">
+                         <span className="flex items-center h-5 px-2.5 bg-emerald-500/10 text-emerald-500 rounded-full text-[9px] font-black border border-emerald-500/20 uppercase tracking-widest animate-pulse">Live</span>
+                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">
+                           {documents.length} Records Detected
+                         </p>
+                      </div>
+                   </div>
                 </div>
 
-                {message && (
-                  <div className={`flex items-center gap-3 p-4 rounded-2xl text-xs font-bold animate-subtle-bounce ${message.startsWith('✓') ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}>
-                    {message.startsWith('✓') ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-                    {message}
+                <div className="relative w-full lg:w-[400px]">
+                   <input 
+                    type="text" 
+                    value={searchTerm}
+                    onChange={e => {
+                      setSearchTerm(e.target.value);
+                      fetchDocuments(e.target.value);
+                    }}
+                    placeholder="Search Secure Registry..."
+                    className="w-full pl-14 pr-8 py-5 bg-white/5 border border-white/5 rounded-[2.5rem] outline-none focus:bg-white/10 focus:border-yellow-400/50 font-bold text-sm transition-all shadow-inner placeholder:text-slate-600 italic"
+                   />
+                   <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                </div>
+             </div>
+
+             {/* Terminal Table */}
+             <div className="flex-1 overflow-y-auto px-10 py-6">
+                {isLoading ? (
+                  <div className="h-full flex flex-col items-center justify-center gap-6">
+                     <div className="w-16 h-16 border-[4px] border-white/5 border-t-yellow-400 rounded-full animate-spin shadow-2xl" />
+                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em] animate-pulse">Syncing Secure Channels...</p>
+                  </div>
+                ) : documents.length > 0 ? (
+                  <table className="w-full text-left border-separate border-spacing-y-4">
+                    <thead>
+                       <tr className="text-slate-500">
+                          <th className="pb-4 text-[10px] font-black uppercase tracking-[0.4em] pl-6">Case Code</th>
+                          <th className="pb-4 text-[10px] font-black uppercase tracking-[0.4em]">Trademark / Subject</th>
+                          <th className="pb-4 text-[10px] font-black uppercase tracking-[0.4em]">Class</th>
+                          <th className="pb-4 text-[10px] font-black uppercase tracking-[0.4em]">Timeline</th>
+                          <th className="pb-4 text-[10px] font-black uppercase tracking-[0.4em] text-center">Auth Actions</th>
+                       </tr>
+                    </thead>
+                    <tbody className="">
+                      {documents.map((doc, i) => (
+                        <tr key={doc.id} className="group transition-all">
+                           <td className="py-6 pl-6 bg-white/5 rounded-l-[2rem] border-y border-l border-white/5 group-hover:bg-white/10 transition-colors">
+                             <div className="text-[11px] font-black text-yellow-400/80 bg-yellow-400/5 px-4 py-2 rounded-xl inline-block border border-yellow-400/10 italic">
+                               {doc.code}
+                             </div>
+                           </td>
+                           <td className="py-6 bg-white/5 border-y border-white/5 group-hover:bg-white/10 transition-colors text-sm font-black tracking-tight text-white/90">
+                              <div className="flex items-center gap-4">
+                                 <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center text-slate-500 group-hover:text-white transition-colors">
+                                    <FileText className="w-4 h-4" />
+                                 </div>
+                                 {doc.name}
+                              </div>
+                           </td>
+                           <td className="py-6 bg-white/5 border-y border-white/5 group-hover:bg-white/10 transition-colors">
+                              <span className="px-5 py-2 bg-white/5 border border-white/10 text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-widest group-hover:text-white group-hover:border-white/20 transition-all">
+                                {doc.type}
+                              </span>
+                           </td>
+                           <td className="py-6 bg-white/5 border-y border-white/5 group-hover:bg-white/10 transition-colors">
+                              <div className="flex flex-col gap-1">
+                                 <span className="text-[11px] font-black text-white/70 italic">{doc.date.slice(0,2)}/{doc.date.slice(2,4)}/{doc.date.slice(4)}</span>
+                                 <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-1 group-hover:text-slate-400">{doc.filename.slice(0,10)}...</span>
+                              </div>
+                           </td>
+                           <td className="py-6 bg-white/5 rounded-r-[2rem] border-y border-r border-white/5 group-hover:bg-white/10 transition-colors">
+                             <div className="flex items-center justify-center gap-3">
+                                <button className="w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-2xl border border-white/5 transition-all active:scale-95">
+                                   <Download className="w-4 h-4" />
+                                </button>
+                                <button 
+                                  onClick={() => handleDelete(doc.id)}
+                                  className="w-10 h-10 flex items-center justify-center bg-red-500/5 hover:bg-red-500/20 text-red-500/60 hover:text-red-500 rounded-2xl border border-red-500/10 transition-all active:scale-95"
+                                >
+                                   <Trash2 className="w-4 h-4" />
+                                </button>
+                             </div>
+                           </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center gap-8 opacity-20 grayscale scale-90">
+                     <div className="w-32 h-32 bg-white/5 rounded-[4rem] flex items-center justify-center border-2 border-white/10 shadow-inner">
+                        <Package className="w-14 h-14 text-slate-500" />
+                     </div>
+                     <div className="text-center space-y-2">
+                        <p className="text-3xl font-black italic uppercase tracking-tighter">Empty Archive</p>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em]">No secure signatures found in main vault</p>
+                     </div>
                   </div>
                 )}
+             </div>
 
-                <button
-                  type="submit"
-                  disabled={uploading}
-                  className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-black uppercase tracking-widest py-5 rounded-2xl transition-all shadow-xl shadow-blue-600/20 active:scale-95"
-                >
-                  {uploading ? 'Processing...' : 'Upload Công văn'}
-                </button>
-              </form>
-            ) : (
-              <div className="space-y-8 text-center py-4">
-                <div className="p-6 bg-blue-600/5 rounded-[2rem] border border-dashed border-blue-500/20">
-                   <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                     <Files className="w-8 h-8 text-blue-400" />
+             {/* Terminal Status Bar */}
+             <div className="px-12 py-8 bg-white/2 backdrop-blur-md flex items-center justify-between border-t border-white/5">
+                <div className="flex items-center gap-6">
+                   <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-blue-500" />
+                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Protocol V3.4 Secure-Core</span>
                    </div>
-                   <h3 className="text-white font-bold mb-2">Upload Thư mục</h3>
-                   <p className="text-xs text-gray-500 leading-relaxed mb-6">
-                     Hệ thống tự động phân tích Mã CV, Ngày và Tên từ định dạng file PDF.
-                   </p>
-                   <label className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all cursor-pointer shadow-lg shadow-blue-600/20 active:scale-95">
-                     <Upload className="w-4 h-4" />
-                     Chọn tệp tin
-                     <input type="file" multiple accept=".pdf" className="hidden" onChange={handleBulkUpload} disabled={uploading} />
-                   </label>
+                   <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
+                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Encrypted Tunnel Active</span>
+                   </div>
                 </div>
-                
-                <div className="flex items-start gap-4 p-4 bg-yellow-500/5 rounded-2xl border border-yellow-500/10 text-left">
-                  <Info className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
-                  <p className="text-[10px] text-yellow-500/80 font-medium leading-relaxed">
-                    <strong>Ghi chú:</strong> Tên file nên có định dạng [Số CV] [Ngày] [Tên].pdf để AI nhận diện tốt nhất.
-                  </p>
+                <div className="flex items-center gap-3">
+                   {[1, 2, 3].map(p => (
+                     <button key={p} className="w-10 h-10 bg-white/5 rounded-2xl flex items-center justify-center text-[10px] font-black border border-white/10 hover:border-yellow-400 group transition-all">
+                        <span className="text-slate-600 group-hover:text-yellow-400">{p}</span>
+                     </button>
+                   ))}
                 </div>
-              </div>
-            )}
-          </section>
-        </div>
-
-        {/* Right: Table Section */}
-        <div className="xl:col-span-8">
-          <section className="bg-white/5 border border-white/10 glass-effect rounded-[2.5rem] p-8 lg:p-10 shadow-2xl overflow-hidden min-h-[600px]">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
-              <h2 className="text-xl font-black text-white flex items-center gap-3">
-                <span className="p-2 bg-blue-500/10 rounded-xl text-blue-400"><FileText className="w-5 h-5" /></span>
-                Dữ liệu Hiện tại
-              </h2>
-              
-              <div className="relative group w-full sm:w-auto">
-                <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-blue-400 transition-colors" />
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm mã hoặc tên..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full sm:w-72 bg-black/40 border border-white/10 rounded-2xl px-12 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all font-medium"
-                />
-              </div>
-            </div>
-
-            <div className="relative rounded-[2rem] overflow-hidden border border-white/5 bg-black/20">
-              <div className="overflow-x-auto custom-scrollbar">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-white/5 border-b border-white/10">
-                      <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-blue-100/40">Mã CV</th>
-                      <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-blue-100/40">Thương hiệu / Tên</th>
-                      <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-blue-100/40">Dữ liệu Ngày</th>
-                      <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-blue-100/40 text-center">Tác vụ</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {filteredDocs.length === 0 ? (
-                      <tr>
-                        <td colSpan={4} className="px-6 py-20 text-center">
-                          <div className="text-4xl mb-4">🏜️</div>
-                          <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Không có dữ liệu phù hợp</p>
-                        </td>
-                      </tr>
-                    ) : (
-                      filteredDocs.map((doc) => (
-                        <tr key={doc.code} className="hover:bg-white/[0.03] transition-colors group/row">
-                          <td className="px-6 py-5">
-                            <span className="font-black text-blue-400 group-hover:text-yellow-400 transition-colors tracking-tight">{doc.code}</span>
-                          </td>
-                          <td className="px-6 py-5">
-                            <div className="flex flex-col">
-                              <span className="font-bold text-white tracking-tight">{doc.name}</span>
-                              <span className="text-[10px] text-gray-500 font-medium uppercase tracking-tighter mt-1">{doc.type}</span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-5">
-                            <span className="text-sm font-medium text-gray-400">{doc.date}</span>
-                          </td>
-                          <td className="px-6 py-5">
-                            <div className="flex items-center justify-center gap-3">
-                              <Link
-                                href={`/documents/${doc.filename}`}
-                                target="_blank"
-                                className="p-2 rounded-xl bg-white/5 hover:bg-emerald-500/20 text-gray-400 hover:text-emerald-400 border border-transparent hover:border-emerald-500/20 transition-all"
-                                title="Xem văn bản"
-                              >
-                                <Eye className="w-5 h-5" />
-                              </Link>
-                              <button
-                                onClick={() => handleDelete(doc.code)}
-                                className="p-2 rounded-xl bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 border border-transparent hover:border-red-500/20 transition-all"
-                                title="Xóa"
-                              >
-                                <Trash2 className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            
-            <div className="mt-8 flex justify-between items-center px-4">
-              <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">
-                Đang hiển thị {filteredDocs.length} / {documents.length} bản ghi
-              </p>
-              <div className="flex gap-2">
-                 <button className="p-2 bg-white/5 border border-white/10 rounded-xl text-gray-500 hover:text-white transition-all"><Filter className="w-4 h-4" /></button>
-                 <button className="p-2 bg-white/5 border border-white/10 rounded-xl text-gray-500 hover:text-white transition-all"><SearchIcon className="w-4 h-4" /></button>
-              </div>
-            </div>
-          </section>
-        </div>
+             </div>
+          </div>
+        </main>
       </div>
 
-      {/* Floating Back Link */}
-      <div className="text-center pb-10">
-        <Link href="/" className="inline-flex items-center gap-2 text-blue-400/40 hover:text-blue-400 font-black uppercase tracking-widest text-[10px] transition-all hover:gap-4">
-          <span>←</span> Quay lại hệ thống chính
-        </Link>
-      </div>
+      <style jsx>{`
+        .animate-spin-slow {
+          animation: spin 10s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
+  );
+}
+
+function NavLink({ label, active, icon }: any) {
+  return (
+    <button className={`flex items-center gap-3 h-full px-2 border-b-2 transition-all group ${active ? 'border-yellow-400 text-white' : 'border-transparent text-slate-500 hover:text-white'}`}>
+       <div className={`transition-transform group-hover:scale-110 ${active ? 'text-yellow-400' : ''}`}>{icon}</div>
+       <span className="text-[10px] font-black uppercase tracking-[0.3em]">{label}</span>
+    </button>
   );
 }
