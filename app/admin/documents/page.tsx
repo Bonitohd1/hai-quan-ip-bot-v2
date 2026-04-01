@@ -338,7 +338,7 @@ export default function AdminDashboard() {
                 <InputGroup label="IDENTIFICATION (TRADEMARK / SUBJECT)" value={form.name} onChange={v => setForm({...form, name: v})} placeholder="Ex: Gia hạn Ray-ban 2026 Registry..." />
                 
                 <div className="grid grid-cols-2 gap-12">
-                   <InputGroup label="CASE CODE (HQ-ID)" value={form.code} onChange={v => setForm({...form, code: v})} placeholder="Ex: 27812" uppercase />
+                   <InputGroup label="CASE CODE (HQ-ID)" value={form.code} onChange={v => setForm({...form, code: v})} placeholder="Ex: 27812" uppercase={true} />
                    <div className="space-y-6">
                       <label className="text-[12px] font-black text-slate-500 uppercase tracking-[0.6em] ml-4">FILE CLASS</label>
                       <select 
@@ -435,7 +435,7 @@ function AdminStat({ icon, label, value, color }: any) {
   );
 }
 
-function InputGroup({ label, value, onChange, placeholder, uppercase }: any) {
+function InputGroup({ label, value, onChange, placeholder, uppercase }: { label: string, value: string, onChange: (v: string) => void, placeholder: string, uppercase?: boolean }) {
    return (
       <div className="space-y-6">
          <label className="text-[12px] font-black text-slate-500 uppercase tracking-[0.6em] ml-4">{label}</label>
