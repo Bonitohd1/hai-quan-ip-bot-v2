@@ -39,18 +39,31 @@ export default function TraCuuPage() {
     }
   };
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!searchQuery.trim()) {
-      setResults([]);
+      loadDocuments();
       setSearched(false);
       return;
     }
-    const filtered = documents.filter(doc => 
-      doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doc.code.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setResults(filtered);
-    setSearched(true);
+    
+    setIsLoading(true);
+    try {
+      const typeMapping: {[key: string]: string} = {
+        'cong-van': 'all',
+        'san-pham': 'Sản phẩm',
+        'vi-pham': 'Vi phạm'
+      };
+      
+      const searchType = typeMapping[activeType] || 'all';
+      const res = await fetch(`/api/documents?q=${encodeURIComponent(searchQuery)}&type=${searchType}`);
+      const data = await res.json();
+      setResults(data.documents || []);
+      setSearched(true);
+    } catch (error) {
+      console.error('Search error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const statCards = [
@@ -132,11 +145,21 @@ export default function TraCuuPage() {
               />
               <button 
                 onClick={handleSearch}
-                className="bg-[#1a2b56] hover:bg-blue-900 border-2 border-[#facc15] text-white px-8 py-4 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all shadow-xl shadow-blue-900/20 active:scale-95 group"
+                disabled={isLoading}
+                className="bg-[#1a2b56] hover:bg-blue-900 border-2 border-[#facc15] text-white px-8 py-4 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all shadow-xl shadow-blue-900/20 active:scale-95 group disabled:opacity-50"
               >
-                <Search className="w-4 h-4 text-[#facc15] group-hover:scale-110 transition-transform" />
+                {isLoading ? (
+                  <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                ) : (
+                  <Search className="w-4 h-4 text-[#facc15] group-hover:scale-110 transition-transform" />
+                )}
                 Tra cứu
               </button>
+            </div>
+            <div className="flex items-center gap-3 mt-2 px-1">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Engine:</span>
+              <span className="text-[8px] font-black bg-blue-50 text-blue-600 px-2.5 py-1 rounded-md border border-blue-100 uppercase">ClaudeKit-Engineer</span>
+              <span className="text-[8px] font-black bg-purple-50 text-purple-600 px-2.5 py-1 rounded-md border border-purple-100 uppercase">Skill-Orchestration</span>
             </div>
           </div>
 

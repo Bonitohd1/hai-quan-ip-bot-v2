@@ -13,62 +13,79 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Dữ liệu không hợp lệ' }, { status: 400 });
     }
 
-    // Find admin user
-    const adminUser = await prisma.adminUser.findUnique({
-      where: { username },
-    });
+    // Check for hardcoded admin fallback (useful for empty databases on Vercel)
+    const envUser = process.env.ADMIN_USERNAME || 'admin';
+    const envPass = process.env.ADMIN_PASSWORD || 'admin123';
+    
+    let adminUser: any = null;
 
-    if (!adminUser || adminUser.password !== password) {
-      // Log failed attempt
-      await prisma.activityLog.create({
-        data: {
-          action: 'LOGIN_FAILED',
-          resource: 'AdminUser',
-          resourceId: username,
-          details: 'Invalid credentials',
-          ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
-          userAgent: request.headers.get('user-agent') || 'unknown',
-        },
+    if (username === envUser && password === envPass) {
+      logger.info(`Fallback login successful for "${username}" via ENV`);
+      adminUser = {
+        id: 'env-default',
+        username: envUser,
+        password: envPass,
+        isActive: true
+      };
+    } else {
+      // Find admin user in DB
+      adminUser = await prisma.adminUser.findUnique({
+        where: { username },
       });
 
-      logger.warn('Failed login attempt', { username });
-      return NextResponse.json({ error: 'Tên đăng nhập hoặc mật khẩu không đúng' }, { status: 401 });
+      if (!adminUser || adminUser.password !== password) {
+        // Log failed attempt
+        try {
+          await prisma.activityLog.create({
+            data: {
+              action: 'LOGIN_FAILED',
+              resource: 'AdminUser',
+              resourceId: username,
+              details: 'Invalid credentials',
+              ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+              userAgent: request.headers.get('user-agent') || 'unknown',
+            },
+          });
+        } catch (e) {}
+
+        logger.warn('Failed login attempt', { username });
+        return NextResponse.json({ error: 'Tên đăng nhập hoặc mật khẩu không đúng' }, { status: 401 });
+      }
+
+      if (!adminUser.isActive) {
+        return NextResponse.json({ error: 'Tài khoản này đã bị vô hiệu hóa' }, { status: 403 });
+      }
     }
 
-    if (!adminUser.isActive) {
+    try {
+      // Log successful login
       await prisma.activityLog.create({
         data: {
-          action: 'LOGIN_FAILED',
+          action: 'LOGIN_SUCCESS',
           resource: 'AdminUser',
           resourceId: adminUser.id,
-          details: 'User account is inactive',
+          details: `Admin login${adminUser.id === 'env-default' ? ' (Fallback)' : ''}`,
           ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
           userAgent: request.headers.get('user-agent') || 'unknown',
         },
       });
-
-      return NextResponse.json({ error: 'Tài khoản này đã bị vô hiệu hóa' }, { status: 403 });
-    }
-
-    // Log successful login
-    await prisma.activityLog.create({
-      data: {
-        action: 'LOGIN_SUCCESS',
-        resource: 'AdminUser',
-        resourceId: adminUser.id,
-        details: 'Admin login',
-        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
-        userAgent: request.headers.get('user-agent') || 'unknown',
-      },
-    });
+    } catch(e) {}
 
     // Create response with cookie
-    const response = NextResponse.json({ success: true, user: { id: adminUser.id, username: adminUser.username, email: adminUser.email } });
+    const response = NextResponse.json({ 
+      success: true, 
+      user: { 
+        id: adminUser.id, 
+        username: adminUser.username, 
+        email: adminUser.email || '' 
+      } 
+    });
     
     // Set cookie with token
     response.cookies.set('admin_token', 'authenticated', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      path: '/',
       sameSite: 'strict',
       maxAge: 24 * 60 * 60, // 24 giờ
     });

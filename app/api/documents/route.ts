@@ -7,12 +7,66 @@ import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const documents = await prisma.document.findMany({
+    const { searchParams } = new URL(request.url);
+    const query = searchParams.get('q');
+    const type = searchParams.get('type');
+
+    let where: any = {};
+    
+    if (query) {
+      const q = query.toLowerCase();
+      where.OR = [
+        { name: { contains: q } },
+        { code: { contains: q } },
+        { description: { contains: q } },
+      ];
+    }
+
+    if (type && type !== 'all') {
+      where.type = { contains: type };
+    }
+
+    let documents = await prisma.document.findMany({
+      where,
       orderBy: { createdAt: 'desc' },
     });
-    logger.info(`Fetched ${documents.length} documents from ${process.env.DATABASE_URL}`);
+    
+    // Fallback to JSON if database is empty (common on ephemeral Vercel SQLite)
+    if (documents.length === 0 && !query && (type === 'all' || !type)) {
+      try {
+        const jsonPath = path.join(process.cwd(), 'lib/documents.json');
+        if (fs.existsSync(jsonPath)) {
+          const rawData = fs.readFileSync(jsonPath, 'utf8');
+          const data = JSON.parse(rawData);
+          documents = data.documents || [];
+          logger.info(`Fallback to JSON: found ${documents.length} records`);
+        }
+      } catch (err) {
+        logger.error('Failed to read fallback JSON', err as Error);
+      }
+    } else if (documents.length === 0 && query) {
+      // If searching and DB is empty, also try to search in the JSON fallback
+      try {
+        const jsonPath = path.join(process.cwd(), 'lib/documents.json');
+        if (fs.existsSync(jsonPath)) {
+          const rawData = fs.readFileSync(jsonPath, 'utf8');
+          const data = JSON.parse(rawData);
+          const allDocs = (data.documents || []) as any[];
+          const q = query.toLowerCase();
+          documents = allDocs.filter(doc => 
+            doc.name?.toLowerCase().includes(q) || 
+            doc.code?.toLowerCase().includes(q) ||
+            doc.description?.toLowerCase().includes(q)
+          );
+        }
+      } catch (err) {
+        logger.error('Failed to search in fallback JSON', err as Error);
+      }
+    }
+    
+    logger.info(`Fetched ${documents.length} documents for query "${query || ''}"`);
     return NextResponse.json({ documents });
   } catch (error) {
     logger.error('CRITICAL: Error fetching documents from database', error instanceof Error ? error : new Error(String(error)));

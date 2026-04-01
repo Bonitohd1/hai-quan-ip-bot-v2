@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import ChatBot from '@/components/ChatBot';
+import Link from 'next/link';
 
 export default function Home() {
   const router = useRouter();
@@ -60,9 +61,12 @@ export default function Home() {
                 <p className="text-blue-200/80 font-bold text-sm">Tra cứu và tư vấn sở hữu trí tuệ</p>
               </div>
             </div>
-            <button className="bg-[#facc15] hover:bg-yellow-500 text-[#1a2b56] px-6 py-3 rounded-xl font-black text-xs flex items-center gap-2 transition-all shadow-xl shadow-yellow-500/20 active:scale-95 self-start lg:self-center">
+            <Link 
+              href="/admin/login"
+              className="bg-[#facc15] hover:bg-yellow-500 text-[#1a2b56] px-6 py-3 rounded-xl font-black text-xs flex items-center gap-2 transition-all shadow-xl shadow-yellow-500/30 active:scale-95 self-start lg:self-center relative z-50 cursor-pointer pointer-events-auto"
+            >
               ➜ Đăng nhập
-            </button>
+            </Link>
           </div>
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-400/5 blur-[80px] rounded-full translate-x-1/2 -translate-y-1/2" />
         </header>
