@@ -97,39 +97,40 @@ export default function ChatBot() {
       {open && (
         <div className="flex flex-col w-[90vw] sm:w-[400px] h-[600px] max-h-[85vh] bg-white shadow-2xl rounded-3xl overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-300">
           
-          {/* Custom Header */}
-          <header className="flex items-center justify-between bg-gradient-to-r from-[#1a2b56] to-[#1e3a8a] text-white px-5 py-5 shadow-lg relative overflow-hidden">
-            <div className="relative z-10 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center p-1.5 backdrop-blur-md">
-                 <Image src="/logoHQdaxoanen.png" alt="HQ" width={32} height={32} className="object-contain" />
+          {/* Custom Header - NO BLUR, SOLID CARBON */}
+          <header className="flex items-center justify-between bg-[#020617] text-white px-8 py-8 border-b-4 border-[#fbbf24] shadow-2xl relative">
+            <div className="relative z-10 flex items-center gap-5">
+              <div className="w-12 h-12 rounded-xl bg-[#0f172a] border-2 border-white/10 flex items-center justify-center p-2">
+                 <Image src="/logoHQdaxoanen.png" alt="HQ" width={36} height={36} className="object-contain" />
               </div>
               <div className="flex flex-col">
-                <span className="font-black tracking-tight text-base leading-none mb-1">Trợ lý SHTT</span>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                   <span className="text-[9px] uppercase font-black text-blue-100 tracking-widest">Đang hoạt động</span>
+                <span className="font-black tracking-tighter text-lg uppercase italic leading-none mb-1">Vault Assistant</span>
+                <div className="flex items-center gap-2 mt-1">
+                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]"></span>
+                   <span className="text-[10px] uppercase font-black text-slate-500 tracking-[0.4em] italic">Authority Node-4</span>
                 </div>
               </div>
             </div>
             
-            <div className="relative z-10 flex items-center gap-2">
+            <div className="relative z-10 flex items-center gap-4">
               <button 
                 onClick={() => {
                   if (confirm('Xóa hết tin nhắn?')) {
-                    setMessages([{ id: 1, from: 'bot', text: 'Xin chào! Tôi đã sẵn sàng hỗ trợ bạn.' }]);
+                    setMessages([{ id: 1, from: 'bot', text: 'Xin chào! Hệ thống đã sẵn sàng cho truy vấn mới.' }]);
                     setShowSuggestions(true);
                   }
                 }}
-                className="p-2 hover:bg-white/10 rounded-xl transition-colors"
-                title="Xóa lịch sử"
+                className="w-12 h-12 bg-[#0f172a] hover:bg-white text-slate-500 hover:text-[#020617] rounded-xl border-2 border-white/5 transition-all shadow-xl flex items-center justify-center"
               >
-                <Trash2 size={16} />
+                <Trash2 size={20} />
               </button>
-              <button onClick={() => setOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-colors bg-white/5">
-                <X size={20} />
+              <button 
+                onClick={() => setOpen(false)} 
+                className="w-12 h-12 bg-[#020617] hover:bg-[#fbbf24] text-slate-500 hover:text-[#020617] rounded-xl border-2 border-white/5 transition-all shadow-xl flex items-center justify-center"
+              >
+                <X size={24} />
               </button>
             </div>
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/5 blur-[40px] rounded-full translate-x-1/2 -translate-y-1/2" />
           </header>
 
           {/* Messages area */}
