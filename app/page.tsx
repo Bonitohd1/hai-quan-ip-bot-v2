@@ -1,171 +1,209 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import ChatBot from '@/components/ChatBot';
 import Link from 'next/link';
-import { ShieldCheck, Search, Database, Lock, Globe, Terminal, ArrowRight, Zap, CircleDashed } from 'lucide-react';
+import { 
+  Search, FileText, History, BarChart3, 
+  AlertTriangle, Clock, MessageSquare, ShieldCheck, 
+  ArrowRight, Sparkles, ChevronRight, FileSearch
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+
+const MODULES = [
+  { 
+    title: 'Tra cứu Thông minh', 
+    desc: 'Sử dụng AI phân tích hình ảnh, text để tìm kiếm hồ sơ nhãn hiệu, kiểu dáng.',
+    href: '/tra-cuu',
+    icon: Search,
+    color: 'text-blue-900',
+    bg: 'bg-blue-50',
+    border: 'group-hover:border-blue-900',
+  },
+  { 
+    title: 'Hệ thống Pháp lý', 
+    desc: 'Hỏi đáp AI về Luật, Nghị định và Thông tư kiểm soát biên giới.',
+    href: '/van-ban-phap-luat',
+    icon: FileText,
+    color: 'text-orange-600',
+    bg: 'bg-orange-50',
+    border: 'group-hover:border-orange-500',
+  },
+  { 
+    title: 'Lịch sử & Thay đổi', 
+    desc: 'Truy xuất dòng thời gian bảo hộ của một thương hiệu cụ thể.',
+    href: '/lich-su-shtt',
+    icon: History,
+    color: 'text-blue-900',
+    bg: 'bg-blue-50',
+    border: 'group-hover:border-blue-900',
+  },
+  { 
+    title: 'Báo cáo Chi tiết', 
+    desc: 'Kết xuất báo cáo lượng hàng giả, vi phạm SHTT theo thời gian thực.',
+    href: '/thong-ke-shtt',
+    icon: BarChart3,
+    color: 'text-orange-600',
+    bg: 'bg-orange-50',
+    border: 'group-hover:border-orange-500',
+  },
+];
+
+const AI_INSIGHTS = [
+  { time: '10 phút trước', title: 'Phát hiện nghi ngờ', desc: 'Có sự tương đồng 85% giữa lô hàng #VN892 và nhãn hiệu "Apple" đã đăng ký.', type: 'warning' },
+  { time: '1 giờ trước', title: 'Hồ sơ chờ duyệt', desc: '4 văn bản đề nghị kiểm tra hải quan đối với nhãn hiệu "Nike" sắp hết hạn.', type: 'action' },
+  { time: '2 giờ trước', title: 'Cập nhật pháp lý', desc: 'Nghị định mới về xử phạt hành chính SHTT đã được AI học xong.', type: 'info' },
+];
 
 export default function Home() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
-    <div className="min-h-screen bg-[#020617] flex flex-col font-sans text-white relative overflow-hidden">
-      {/* 🚀 ZERO-BLUR CARBON BACKGROUND */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] border border-white/5 rounded-full -z-10 mix-blend-overlay" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-white/5 rounded-full -z-10 mix-blend-overlay" />
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.05] mix-blend-overlay" />
-
-      {/* 🧭 ELITE NAVIGATION (LIQUID CARBON) */}
-      <nav className="w-full h-32 flex items-center justify-between px-16 bg-[#020617] border-b-2 border-white/10 sticky top-0 z-[100] shadow-[0_10px_40px_-20px_rgba(37,99,235,0.2)]">
-        <div className="flex items-center gap-6 group cursor-pointer" onClick={() => router.push('/')}>
-          <div className="w-14 h-14 bg-[#0a192f] border-2 border-white/10 flex items-center justify-center rounded-2xl group-hover:border-blue-500 transition-all duration-300">
-             <ShieldCheck className="w-8 h-8 text-[#fbbf24] group-hover:scale-110 transition-transform" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-3xl font-black tracking-tighter leading-none text-white uppercase italic">HQ REGISTRY<span className="text-[#fbbf24] ml-1">IP</span></span>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em] mt-1.5 flex items-center gap-2">
-               <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-               National IP Protection Core
-            </span>
-          </div>
-        </div>
+    <div className="flex flex-col min-h-screen bg-[#f1f5f9] -m-6 lg:-m-12 p-6 lg:p-10 space-y-8 max-w-[1600px] mx-auto font-sans">
+      
+      {/* ── HEADER BANNER ── */}
+      <div className="animate-fade-in-up delay-100 relative bg-[#0a192f] rounded-3xl p-8 lg:p-10 overflow-hidden shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 border border-slate-800">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-blue-900/40 to-transparent pointer-events-none" />
         
-        <div className="hidden lg:flex items-center gap-16">
-          <NavLink label="Command Center" href="/" active />
-          <NavLink label="Public Search" href="/tra-cuu" />
-          <NavLink label="IP Resources" href="/tra-cuu" />
-        </div>
-
-        <Link 
-          href="/admin/login"
-          className="bg-white hover:bg-[#fbbf24] text-[#020617] px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-95 shadow-2xl hover:shadow-[0_0_40px_rgba(251,191,36,0.3)] flex items-center gap-4 group"
-        >
-          <Lock className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-          Secure Admin
-        </Link>
-      </nav>
-
-      <main className="flex-1 max-w-7xl mx-auto w-full px-16 py-40 flex flex-col items-center">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-40 items-center">
-          {/* LEFT: CONTENT - HEROIC */}
-          <div className="space-y-16 reveal">
-            <div className="inline-flex items-center gap-4 px-6 py-3 bg-[#0f172a] border-2 border-white/10 rounded-2xl text-blue-400 group">
-              <Zap className="w-5 h-5 fill-blue-500/20 group-hover:fill-blue-500 group-hover:rotate-12 transition-all" />
-              <span className="text-[11px] font-black uppercase tracking-[0.4em] italic mb-[-2px]">HQ-IP-P System Ready v-4.8.1</span>
+        <div className="relative z-10 w-full md:w-2/3">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="px-3 py-1 bg-orange-500 text-white text-[11px] font-bold uppercase tracking-wider rounded-full shadow-lg shadow-orange-500/30 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" />
+              AI Assistant v2.0
             </div>
-            
-            <h1 className="text-[11rem] font-black text-white italic tracking-tighter leading-[0.75] uppercase group">
-               Vault <br />
-               <span className="text-[#fbbf24] drop-shadow-[0_0_30px_rgba(251,191,36,0.2)]">Internal</span>
-               <div className="h-4 w-48 bg-blue-500 mt-4 rounded-full shadow-[0_0_20px_rgba(37,99,235,0.5)]" />
-            </h1>
-            
-            <p className="text-2xl text-slate-400 font-bold leading-relaxed max-w-xl italic border-l-4 border-slate-800 pl-10 opacity-80">
-              Chuyên biệt cho Chi cục Hải quan. Đồng bộ, trích xuất và xác minh các văn bản sở hữu trí tuệ bản gốc trong tích tắc. 
-              Môi trường làm việc bảo mật cao (Zero-Trust Arch).
-            </p>
-
-            <div className="flex flex-wrap gap-10 pt-10">
-              <button 
-                onClick={() => router.push('/tra-cuu')}
-                className="group relative bg-[#fbbf24] hover:bg-yellow-500 text-[#020617] px-16 py-10 rounded-[2.5rem] font-black text-lg uppercase tracking-widest transition-all duration-300 shadow-2xl active:scale-95 border-b-[10px] border-amber-600 hover:border-amber-700 flex items-center gap-6"
-              >
-                <Search className="w-8 h-8 group-hover:scale-125 transition-transform" />
-                Vô hiệu hóa vi phạm
-              </button>
-              <button 
-                className="bg-[#0f172a] hover:bg-white text-white hover:text-[#0a192f] px-16 py-10 rounded-[2.5rem] font-black text-lg border-2 border-white/10 flex items-center justify-center gap-6 transition-all duration-300 active:scale-95 group"
-              >
-                <Terminal className="w-8 h-8 group-hover:text-blue-500 transition-colors" />
-                Lệnh hệ thống
-              </button>
-            </div>
-
-            <div className="flex items-center gap-24 pt-16 border-t-2 border-white/5 opacity-40">
-               <div className="flex flex-col gap-2">
-                  <span className="text-4xl font-black italic tracking-tighter">1,240</span>
-                  <span className="text-[10px] font-black uppercase tracking-[0.4em]">Authorized Docs</span>
-               </div>
-               <div className="flex flex-col gap-2">
-                  <span className="text-4xl font-black italic tracking-tighter">12.5 G</span>
-                  <span className="text-[10px] font-black uppercase tracking-[0.4em]">Vault Capacity</span>
-               </div>
-               <div className="flex flex-col gap-2 text-emerald-400">
-                  <span className="text-4xl font-black italic tracking-tighter">A-LEVEL</span>
-                  <span className="text-[10px] font-black uppercase tracking-[0.4em]">Global Node Sync</span>
-               </div>
+            <div className="px-3 py-1 bg-blue-500/20 text-blue-300 text-[11px] font-bold uppercase tracking-wider rounded-full border border-blue-500/30">
+              Đang hoạt động
             </div>
           </div>
+          
+          <h1 className="text-3xl lg:text-4xl font-extrabold text-white tracking-tight mb-3">
+            Trợ lý Thông minh <span className="text-orange-500">Hải Quan SHTT</span>
+          </h1>
+          <p className="text-slate-300 text-sm lg:text-base leading-relaxed max-w-xl font-medium">
+            Phân tích tự động, cảnh báo vi phạm thời gian thực và tra cứu luật SHTT bằng ngôn ngữ tự nhiên dành riêng cho cán bộ cục Hải quan.
+          </p>
+        </div>
 
-          {/* RIGHT: DECOR - TECH SHARP */}
-          <div className="relative reveal" style={{ animationDelay: '0.2s' }}>
-             <div className="bg-[#0f172a] p-12 rounded-[5rem] border-4 border-white/5 shadow-[30px_30px_0_0_rgba(37,99,235,0.7)] rotate-3 overflow-hidden group">
-                <div className="bg-[#020617] rounded-[3.5rem] overflow-hidden aspect-[4/5] relative border-4 border-white/10">
-                  <Image 
-                    src="https://images.unsplash.com/photo-1544006659-f0b21f04cb1d?auto=format&fit=crop&q=80&w=600" 
-                    alt="Cyber Terminal Architecture" 
-                    fill
-                    className="object-cover opacity-60 grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[2s]"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 p-16 bg-[#020617]/95 border-t-4 border-[#fbbf24]">
-                     <div className="flex flex-col gap-8">
-                        <div className="w-24 h-24 bg-[#fbbf24] rounded-[2rem] flex items-center justify-center shadow-2xl group-hover:rotate-12 transition-all duration-700">
-                           <Globe className="w-12 h-12 text-[#020617]" />
+        <div className="relative z-10 w-full md:w-1/3 flex justify-end">
+           <div className="bg-white/10 backdrop-blur-md p-2 rounded-2xl border border-white/10 w-full max-w-sm">
+             <div className="relative">
+                <Search className="w-5 h-5 text-white/50 absolute left-4 top-1/2 -translate-y-1/2" />
+                <input 
+                   type="text" 
+                   placeholder="Nhập mã hồ sơ / nhãn hiệu / luật..." 
+                   className="w-full pl-12 pr-4 py-3.5 bg-slate-900/50 hover:bg-slate-900/80 border border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-white placeholder:text-white/40"
+                />
+             </div>
+           </div>
+        </div>
+      </div>
+
+      {/* ── KPI METRICS ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        {[
+          { label: 'Cần duyệt hôm nay', value: '18', icon: Clock, color: 'text-orange-500', bg: 'bg-orange-50', delay: 'delay-100' },
+          { label: 'Cảnh báo rủi ro', value: '3', icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-50', delay: 'delay-200' },
+          { label: 'Hồ sơ đang giám sát', value: '2,450', icon: ShieldCheck, color: 'text-blue-800', bg: 'bg-blue-50', delay: 'delay-300' },
+          { label: 'Phiên hỏi đáp AI', value: '142', icon: MessageSquare, color: 'text-blue-500', bg: 'bg-blue-50', delay: 'delay-400' },
+        ].map((stat, i) => (
+          <div key={i} className={`animate-fade-in-up ${stat.delay} bg-white rounded-2xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200/60 flex items-center justify-between group hover:-translate-y-1 hover:shadow-xl transition-all duration-300 cursor-default`}>
+            <div>
+               <h3 className="text-3xl font-extrabold text-[#0a192f] tracking-tight">{stat.value}</h3>
+               <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mt-1">{stat.label}</p>
+            </div>
+            <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform duration-300`}>
+               <stat.icon className="w-7 h-7" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+         
+         {/* ── MODULE CHÍNH (2/3) ── */}
+         <div className="xl:col-span-2 space-y-6 animate-fade-in-up delay-300">
+            <div className="flex items-center gap-3 px-1">
+              <div className="w-1.5 h-6 bg-orange-500 rounded-full" />
+              <h2 className="text-lg font-bold text-[#0a192f] uppercase tracking-wide">Điều hướng nghiệp vụ</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               {MODULES.map((module, i) => (
+                  <Link 
+                     key={i} 
+                     href={module.href}
+                     className={`bg-white rounded-2xl p-7 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-2 border-transparent ${module.border} hover:shadow-xl group flex flex-col justify-between min-h-[200px] transition-all duration-300 hover:-translate-y-1`}
+                  >
+                     <div className="flex justify-between items-start mb-6">
+                        <div className={`w-14 h-14 rounded-2xl ${module.bg} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                           <module.icon className={`w-7 h-7 ${module.color}`} />
                         </div>
-                        <div className="space-y-4">
-                           <p className="text-white text-5xl font-black uppercase tracking-tighter italic leading-none">Security Core</p>
-                           <div className="flex items-center gap-4">
-                              <span className="h-6 px-4 bg-blue-500/10 text-blue-400 text-[10px] font-black rounded-lg border border-blue-500/20 italic tracking-widest uppercase">Verified Deployment</span>
-                              <div className="h-1 flex-1 bg-white/5 rounded-full overflow-hidden">
-                                 <div className="h-full w-2/3 bg-[#fbbf24]" />
-                              </div>
-                           </div>
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-50 text-slate-400 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">
+                           <ArrowRight className="w-5 h-5 -rotate-45 group-hover:rotate-0 transition-transform duration-300" />
                         </div>
                      </div>
-                  </div>
+                     <div>
+                        <h3 className="text-xl font-bold text-[#0a192f] mb-2">{module.title}</h3>
+                        <p className="text-sm text-slate-600 font-medium leading-relaxed">{module.desc}</p>
+                     </div>
+                  </Link>
+               ))}
+            </div>
+         </div>
+
+         {/* ── AI INSIGHTS (1/3) ── */}
+         <div className="space-y-6 animate-fade-in-up delay-400">
+             <div className="flex items-center gap-3 px-1">
+              <div className="w-1.5 h-6 bg-blue-900 rounded-full" />
+              <h2 className="text-lg font-bold text-[#0a192f] uppercase tracking-wide">AI Phân tích & Gợi ý</h2>
+            </div>
+
+             <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200/60 p-6 flex-1 flex flex-col">
+                <div className="space-y-5 flex-1">
+                   {AI_INSIGHTS.map((log, i) => (
+                      <div key={i} className="group flex gap-4 p-4 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 cursor-pointer">
+                         <div className="mt-1">
+                            {log.type === 'warning' ? (
+                               <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                                 <AlertTriangle className="w-4 h-4" />
+                               </div>
+                            ) : log.type === 'action' ? (
+                               <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
+                                 <FileSearch className="w-4 h-4" />
+                               </div>
+                            ) : (
+                               <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700">
+                                 <Sparkles className="w-4 h-4" />
+                               </div>
+                            )}
+                         </div>
+                         <div>
+                            <div className="flex justify-between items-center mb-1">
+                               <h4 className="text-sm font-bold text-[#0a192f] group-hover:text-blue-700 transition-colors">{log.title}</h4>
+                            </div>
+                            <p className="text-xs text-slate-600 font-medium leading-relaxed mb-2">{log.desc}</p>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase">{log.time}</span>
+                         </div>
+                      </div>
+                   ))}
                 </div>
+                
+                <button className="mt-6 w-full py-3.5 rounded-xl border-2 border-[#0a192f] text-[#0a192f] hover:bg-[#0a192f] hover:text-white font-bold text-sm transition-colors flex items-center justify-center gap-2">
+                   MỞ TRUNG TÂM CẢNH BÁO
+                   <ChevronRight className="w-4 h-4" />
+                </button>
              </div>
-             
-             {/* Tech Decors - No Blur */}
-             <div className="absolute -top-12 -left-12 w-48 h-48 bg-[#fbbf24] rounded-full flex flex-col items-center justify-center p-8 -rotate-12 hover:rotate-3 transition-transform duration-700 cursor-pointer shadow-3xl">
-               <CircleDashed className="w-20 h-20 text-[#020617] animate-[spin_5s_linear_infinite]" />
-               <p className="text-[13px] font-black text-[#020617] uppercase tracking-tighter mt-4 italic">Global Node</p>
-             </div>
-             <div className="absolute -bottom-16 -right-16 w-56 h-56 bg-[#020617] rounded-[4rem] border-8 border-white/5 p-10 flex flex-col justify-between shadow-2xl group hover:border-[#fbbf24]/30 transition-all duration-700">
-                <Database className="w-14 h-14 text-blue-500 group-hover:scale-125 transition-transform" />
-                <p className="text-sm font-black uppercase tracking-tighter italic text-white/50 leading-tight">Data Integrity Platform <br /><span className="text-blue-500">v-4.0.01</span></p>
-             </div>
-          </div>
-        </div>
-      </main>
+         </div>
+      </div>
 
       <ChatBot />
-
-      <footer className="w-full py-20 px-16 flex flex-col lg:flex-row items-center justify-between border-t-4 border-white/5 bg-[#020617] gap-12 mt-20">
-        <div className="flex flex-col gap-4">
-           <span className="text-4xl font-black tracking-tighter text-white uppercase italic">CITADEL <span className="text-[#fbbf24]">IP</span></span>
-           <p className="text-slate-600 text-xs font-black uppercase tracking-[0.3em] font-mono">CODE: C-1495A-HQ | SHARP CARBON NODE V-2026.01</p>
-        </div>
-        <div className="flex gap-20">
-          <Link href="#" className="font-black text-[13px] text-slate-500 hover:text-[#fbbf24] uppercase tracking-widest transition-colors italic border-b-2 border-transparent hover:border-[#fbbf24]">Privacy</Link>
-          <Link href="#" className="font-black text-[13px] text-slate-500 hover:text-[#fbbf24] uppercase tracking-widest transition-colors italic border-b-2 border-transparent hover:border-[#fbbf24]">Authority Protocol</Link>
-          <Link href="#" className="font-black text-[13px] text-slate-500 hover:text-[#fbbf24] uppercase tracking-widest transition-colors italic border-b-2 border-transparent hover:border-[#fbbf24]">System Status</Link>
-        </div>
-      </footer>
     </div>
-  );
-}
-
-function NavLink({ label, href, active }: any) {
-  return (
-    <Link 
-      href={href} 
-      className={`font-black text-sm uppercase tracking-[0.5em] transition-all hover:text-[#fbbf24] relative py-4 italic ${active ? 'text-[#fbbf24]' : 'text-slate-600'}`}
-    >
-      {label}
-      {active && <div className="absolute bottom-0 left-0 right-0 h-2 bg-[#fbbf24] rounded-full shadow-[0_0_30px_rgba(251,191,36,0.6)]" />}
-    </Link>
   );
 }

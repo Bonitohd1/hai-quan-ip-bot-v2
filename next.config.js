@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
@@ -8,6 +9,7 @@ const nextConfig = {
       },
     ],
   },
+  serverExternalPackages: ['@prisma/client', 'pdf-lib'],
 };
 
 module.exports = nextConfig;

@@ -1,119 +1,485 @@
 'use client';
 
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import ChatBot from '@/components/ChatBot';
+import { 
+  BarChart3, TrendingUp, ShieldAlert, PackageSearch, Award,
+  ChevronDown, MoreHorizontal, ArrowUpRight, ArrowDownRight,
+  Filter, Download, MapPin, Layers, Briefcase, Zap, ShieldCheck, Activity, X, CheckCircle2, Loader2
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+// --- DATA SETS ---
+const MOCK_DATA = {
+  '2026': {
+    kpis: [
+      { label: 'Hồ sơ yêu cầu bảo vệ SHTT', value: '1,245', change: '+12.5%', trend: 'up', icon: ShieldCheck, color: 'text-blue-600', bg: 'bg-blue-100', desc: 'Doanh nghiệp đệ trình' },
+      { label: 'Số vụ xâm phạm bị bắt giữ', value: '342', change: '-5.2%', trend: 'down', icon: ShieldAlert, color: 'text-rose-600', bg: 'bg-rose-100', desc: 'Tại các cửa khẩu biên giới' },
+      { label: 'Trị giá hàng hóa vi phạm', value: '45.2 Tỷ', change: '+8.4%', trend: 'up', icon: Zap, color: 'text-amber-600', bg: 'bg-amber-100', desc: 'Ước tính (VNĐ)' },
+      { label: 'Hàng giả/nhái bị tiêu hủy', value: '280 Tấn', change: '+15.3%', trend: 'up', icon: PackageSearch, color: 'text-emerald-600', bg: 'bg-emerald-100', desc: 'Giám sát chặt chẽ' },
+    ],
+    trends: [32, 28, 45, 65, 48, 72, 54, 85, 68, 92, 80, 110]
+  },
+  '2025': {
+    kpis: [
+      { label: 'Hồ sơ yêu cầu bảo vệ SHTT', value: '1,106', change: '+8.1%', trend: 'up', icon: ShieldCheck, color: 'text-blue-600', bg: 'bg-blue-100', desc: 'Doanh nghiệp đệ trình' },
+      { label: 'Số vụ xâm phạm bị bắt giữ', value: '360', change: '+2.4%', trend: 'up', icon: ShieldAlert, color: 'text-rose-600', bg: 'bg-rose-100', desc: 'Tại các cửa khẩu biên giới' },
+      { label: 'Trị giá hàng hóa vi phạm', value: '41.7 Tỷ', change: '-4.1%', trend: 'down', icon: Zap, color: 'text-amber-600', bg: 'bg-amber-100', desc: 'Ước tính (VNĐ)' },
+      { label: 'Hàng giả/nhái bị tiêu hủy', value: '243 Tấn', change: '+11.2%', trend: 'up', icon: PackageSearch, color: 'text-emerald-600', bg: 'bg-emerald-100', desc: 'Giám sát chặt chẽ' },
+    ],
+    trends: [45, 30, 38, 55, 60, 48, 75, 62, 58, 80, 72, 84]
+  }
+};
+
+const CATEGORIES = [
+  { name: 'Thời trang & Giày dép', count: 18540, pct: 45, color: '#3b82f6' }, // blue-500
+  { name: 'Mỹ phẩm & Dược phẩm', count: 9890, pct: 24, color: '#f43f5e' }, // rose-500
+  { name: 'Điện tử & Phụ kiện', count: 8240, pct: 18, color: '#f59e0b' }, // amber-500
+  { name: 'Hàng tiêu dùng khác', count: 4560, pct: 13, color: '#10b981' }, // emerald-500
+];
+
+const LOCATION_DATA = [
+  { name: 'Cảng Cát Lái (HCM)', value: '14.5 Tỷ', level: 90 },
+  { name: 'Cửa khẩu Tân Thanh (Lạng Sơn)', value: '12.2 Tỷ', level: 75 },
+  { name: 'Cảng Hải Phòng', value: '8.4 Tỷ', level: 55 },
+  { name: 'Sân bay Nội Bài', value: '6.1 Tỷ', level: 40 },
+  { name: 'Sân bay Tân Sơn Nhất', value: '4.0 Tỷ', level: 25 },
+];
+
+const LOGS_DATA = [
+  { status: 'Đang kiểm hóa', badge: 'bg-amber-100 text-amber-700', dot: 'bg-amber-500 animate-pulse', title: 'Container CL-90234', loc: 'Cảng Cát Lái', brands: 'Chanel, Dior' },
+  { status: 'Bắt giữ lô hàng', badge: 'bg-rose-100 text-rose-700', dot: 'bg-rose-500', title: '15.000 Đôi giày thể thao', loc: 'Cửa khẩu Tân Thanh', brands: 'Nike, Adidas' },
+  { status: 'Hồ sơ hợp lệ', badge: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500', title: 'Gia hạn bảo hộ SHTT', loc: 'Hệ thống DVCTT', brands: 'Honda VN' },
+  { status: 'Tạm dừng thông quan', badge: 'bg-rose-100 text-rose-700', dot: 'bg-rose-500', title: '8 Lô linh kiện máy tính', loc: 'Sân bay Nội Bài', brands: 'Intel, Asus' },
+  { status: 'Chờ xác minh', badge: 'bg-indigo-100 text-indigo-700', dot: 'bg-indigo-500 animate-pulse', title: 'Kiện hàng quà biếu', loc: 'Chuyển phát nhanh HCM', brands: 'Rolex' },
+];
+
+// --- COMPONENTS ---
 
 export default function ThongKeSHTT() {
-  const stats = [
-    { label: 'Tổng sáng chế', value: '18,540', change: '+2.5%', color: 'bg-blue-500' },
-    { label: 'Nhãn hiệu', value: '24,890', change: '+3.1%', color: 'bg-green-500' },
-    { label: 'Thiết kế công nghiệp', value: '8,240', change: '+1.8%', color: 'bg-purple-500' },
-    { label: 'Quyền tác giả', value: '12,560', change: '+4.2%', color: 'bg-yellow-500' },
-  ];
+  const [mounted, setMounted] = useState(false);
+  const [year, setYear] = useState<'2026' | '2025'>('2026');
+  const [showFilter, setShowFilter] = useState(false);
+  const [showLogsModal, setShowLogsModal] = useState(false);
+  
+  // Export states
+  const [exporting, setExporting] = useState(false);
+  const [exportDone, setExportDone] = useState(false);
 
-  const categories = [
-    { name: 'Sáng chế', count: 18540, icon: '💡', percentage: 32 },
-    { name: 'Nhãn hiệu', count: 24890, icon: '🏷️', percentage: 43 },
-    { name: 'Thiết kế', count: 8240, icon: '🎨', percentage: 14 },
-    { name: 'Quyền tác giả', count: 12560, icon: '📝', percentage: 11 },
-  ];
+  useEffect(() => setMounted(true), []);
 
-  const yearlyData = [
-    { year: '2020', value: 32400 },
-    { year: '2021', value: 38200 },
-    { year: '2022', value: 42800 },
-    { year: '2023', value: 48900 },
-    { year: '2024', value: 58230 },
-  ];
+  if (!mounted) return <div className="min-h-screen bg-[#f8fafc]" />;
+
+  const data = MOCK_DATA[year];
+  const maxTrend = Math.max(...data.trends);
+  const months = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
+
+  const handleExport = () => {
+    if (exporting) return;
+    setExporting(true);
+    setExportDone(false);
+    setTimeout(() => {
+      setExporting(false);
+      setExportDone(true);
+      setTimeout(() => setExportDone(false), 3000);
+    }, 1500);
+  };
 
   return (
-    <div className="flex flex-col gap-8">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-blue-900 to-blue-950 text-white p-5 lg:p-8 rounded-lg shadow-lg border-b-4 border-yellow-500">
-        <div className="flex items-center gap-3 lg:gap-4">
-          <span className="text-3xl lg:text-4xl">📊</span>
-          <div>
-            <h1 className="text-xl lg:text-3xl font-bold">Thống kê Sở hữu Trí tuệ Hải quan</h1>
-            <p className="text-xs lg:text-sm opacity-90 mt-1 lg:mt-2">Số liệu thống kê tổng hợp về SHTT năm 2024</p>
-          </div>
-        </div>
-      </header>
+    <div className="flex flex-col min-h-screen bg-[#f8fafc] -m-6 lg:-m-12 p-6 lg:p-10 font-sans text-slate-800 relative">
+      
+      {/* EXPORT TOAST */}
+      <AnimatePresence>
+        {(exporting || exportDone) && (
+          <motion.div 
+            initial={{ opacity: 0, y: -50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: -20, x: '-50%' }}
+            className={`fixed top-6 left-1/2 z-50 flex items-center gap-3 px-6 py-3 rounded-xl shadow-2xl ${exportDone ? 'bg-emerald-600' : 'bg-slate-800'} text-white font-semibold`}
+          >
+            {exporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
+            {exporting ? 'Đang trích xuất báo cáo...' : 'Tải xuống báo cáo thành công!'}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-        {stats.map((stat, i) => (
-          <div key={i} className={`${stat.color} text-white rounded-xl p-4 lg:p-5 shadow-md`}>
-            <p className="text-xs lg:text-sm opacity-90 mb-1.5 font-medium">{stat.label}</p>
-            <p className="text-2xl lg:text-3xl font-bold">{stat.value}</p>
-            <p className="text-[10px] lg:text-xs opacity-75 mt-1.5 lg:mt-2 text-green-100">{stat.change} so với năm trước</p>
+      {/* HEADER / EXECUTIVE SUMMARY */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 relative z-20"
+      >
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100/50 text-blue-700 rounded-full text-xs font-bold tracking-wide uppercase mb-3 border border-blue-200">
+            <BarChart3 className="w-3.5 h-3.5" />
+            Executive Dashboard
           </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+            Báo Cáo Toàn Cảnh SHTT
+          </h1>
+          <p className="text-slate-500 mt-2 font-medium">
+            Thông tin tác nghiệp & phân tích chuyên sâu dữ liệu thực thi quyền SHTT tại biên giới.
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-3 relative">
+          {/* FILTER DROPDOWN */}
+          <div className="relative">
+            <button 
+              onClick={() => setShowFilter(!showFilter)}
+              className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-xl border border-slate-200 shadow-sm transition-all focus:ring-2 focus:ring-blue-100"
+            >
+              <Filter className="w-4 h-4 text-slate-400" />
+              Lọc: Năm {year} <ChevronDown className={`w-4 h-4 opacity-50 transition-transform ${showFilter ? 'rotate-180' : ''}`} />
+            </button>
+            <AnimatePresence>
+              {showFilter && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute top-12 right-0 w-40 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50"
+                >
+                  <button onClick={() => { setYear('2026'); setShowFilter(false); }} className={`w-full text-left px-4 py-3 text-sm font-bold hover:bg-slate-50 transition-colors ${year === '2026' ? 'text-blue-600 bg-blue-50' : 'text-slate-700'}`}>Năm 2026</button>
+                  <button onClick={() => { setYear('2025'); setShowFilter(false); }} className={`w-full text-left px-4 py-3 text-sm font-bold hover:bg-slate-50 transition-colors ${year === '2025' ? 'text-blue-600 bg-blue-50' : 'text-slate-700'}`}>Năm 2025</button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <button 
+            onClick={handleExport}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-md shadow-blue-600/20 transition-all active:scale-95"
+          >
+            <Download className="w-4 h-4" />
+            Xuất Báo Cáo
+          </button>
+        </div>
+      </motion.div>
+
+      {/* KPI METRICS ROW */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8 relative z-10">
+        {data.kpis.map((item, i) => (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            key={`${year}-${i}`} 
+            className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 relative overflow-hidden group"
+          >
+            {/* Background Glow */}
+            <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full ${item.bg} blur-2xl opacity-50 group-hover:opacity-100 transition-opacity`} />
+            
+            <div className="flex justify-between items-start mb-6 relative z-10">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${item.bg} ${item.color}`}>
+                <item.icon className="w-6 h-6" />
+              </div>
+              <div className={`flex items-center gap-1 font-bold text-sm px-2.5 py-1 rounded-full ${item.trend === 'up' ? 'text-emerald-700 bg-emerald-50' : 'text-rose-700 bg-rose-50'}`}>
+                {item.trend === 'up' ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+                {item.change}
+              </div>
+            </div>
+            
+            <div className="relative z-10">
+              <motion.h3 
+                key={item.value}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-[2.25rem] font-bold text-slate-900 tracking-tight leading-none mb-2"
+              >
+                {item.value}
+              </motion.h3>
+              <p className="text-[13px] font-medium text-slate-800 mb-1">{item.label}</p>
+              <p className="text-[12px] text-slate-500 font-medium">{item.desc}</p>
+            </div>
+          </motion.div>
         ))}
       </div>
 
-      {/* Category Breakdown */}
-      <div className="bg-white rounded-xl p-5 lg:p-6 shadow-md">
-        <h2 className="text-lg lg:text-2xl font-bold text-blue-900 mb-5 lg:mb-6">📈 Phân bổ theo loại</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-          {categories.map((cat, i) => (
-            <div key={i} className="text-center">
-              <div className="text-3xl lg:text-4xl mb-2 lg:mb-3">{cat.icon}</div>
-              <h3 className="text-sm lg:text-base font-bold text-blue-900 mb-1.5 lg:mb-2">{cat.name}</h3>
-              <p className="text-xl lg:text-2xl font-bold text-gray-800 mb-1.5 lg:mb-2">{cat.count.toLocaleString()}</p>
-              <div className="w-full bg-gray-200 rounded-full h-1.5 lg:h-2 mb-1.5 lg:mb-2">
-                <div className="bg-blue-900 h-1.5 lg:h-2 rounded-full" style={{ width: `${cat.percentage}%` }}></div>
+      {/* MAIN CHARTS GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 relative z-10">
+         
+         {/* LARGE CHART: TRENDS (2/3 width) */}
+         <motion.div 
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4 }}
+            className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm flex flex-col overflow-hidden"
+         >
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">Biến động vụ việc bắt giữ</h2>
+                <p className="text-sm text-slate-500 font-medium mt-1">Xu hướng hàng tháng năm {year}</p>
               </div>
-              <p className="text-xs lg:text-sm text-gray-600">{cat.percentage}% tổng số</p>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Yearly Trend */}
-      <div className="bg-white rounded-xl p-5 lg:p-6 shadow-md">
-        <h2 className="text-lg lg:text-2xl font-bold text-blue-900 mb-5 lg:mb-6">📅 Xu hướng qua năm</h2>
-        <div className="flex items-end justify-center gap-3 lg:gap-6 h-48 lg:h-64">
-          {yearlyData.map((data, i) => {
-            const maxValue = Math.max(...yearlyData.map(d => d.value));
-            const height = (data.value / maxValue) * 100;
-            return (
-              <div key={i} className="flex flex-col items-center flex-1">
-                <div className="relative w-full flex justify-center mb-3 lg:mb-4">
-                  <div
-                    className="bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-lg w-8 lg:w-12"
-                    style={{ height: `${height * 1.5}px` }}
-                  ></div>
+            
+            <div className="p-6 flex-1 flex flex-col relative h-[380px]">
+              {/* Chart Overlay Stats */}
+              <div className="flex gap-8 mb-8 z-10">
+                <div>
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Đỉnh điểm</p>
+                  <p className="text-2xl font-bold text-slate-800">{Math.max(...data.trends)} <span className="text-sm font-semibold text-slate-500">Vụ</span></p>
                 </div>
-                <p className="text-xs lg:text-sm font-semibold text-gray-700">{data.year}</p>
-                <p className="text-[10px] lg:text-xs text-gray-600 mt-1">{data.value.toLocaleString()}</p>
+                <div>
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Trung bình</p>
+                  <p className="text-2xl font-bold text-slate-800">{Math.round(data.trends.reduce((a,b)=>a+b,0)/12)} <span className="text-sm font-semibold text-slate-500">Vụ/tháng</span></p>
+                </div>
               </div>
-            );
-          })}
-        </div>
+              
+              <div className="flex-1 flex items-end justify-between w-full relative pt-10">
+                 {/* Fake Grid lines */}
+                 <div className="absolute inset-x-0 inset-y-0 flex flex-col justify-between pointer-events-none pb-8 pt-10">
+                   {[4,3,2,1,0].map(val => (
+                     <div key={val} className="w-full border-b border-slate-100 border-dashed relative">
+                        <span className="absolute -top-3.5 -left-1 text-[10px] font-bold text-slate-300">
+                          {Math.round(maxTrend * (val/4))}
+                        </span>
+                     </div>
+                   ))}
+                 </div>
+
+                 {/* The Bars */}
+                 <div className="relative z-10 w-full h-full flex items-end justify-between pb-8 pl-8">
+                   {data.trends.map((val, i) => {
+                      const heightPct = (val / maxTrend) * 100;
+                      return (
+                         <div key={`${year}-${i}`} className="flex flex-col items-center group relative w-full px-1 sm:px-2 h-full justify-end">
+                            {/* Value tooltip */}
+                            <motion.span 
+                               initial={{ opacity: 0, y: 10 }}
+                               whileHover={{ opacity: 1, y: 0 }}
+                               className="absolute -top-10 bg-slate-800 text-white text-[12px] font-bold px-2.5 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-all z-20 pointer-events-none"
+                            >
+                               {val}
+                            </motion.span>
+                            
+                            {/* Animated Line/Bar */}
+                            <motion.div 
+                               initial={{ height: 0 }}
+                               animate={{ height: `${heightPct}%` }}
+                               transition={{ duration: 1, delay: 0.1 + (i * 0.05), type: "spring", bounce: 0.3 }}
+                               className="w-full max-w-[40px] rounded-t-lg bg-gradient-to-t from-blue-600 to-indigo-400 opacity-80 group-hover:opacity-100 group-hover:from-blue-500 group-hover:to-indigo-300 transition-all cursor-pointer relative"
+                            >
+                                {/* Glow on hover */}
+                                <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-t-lg" />
+                            </motion.div>
+                            
+                            <span className="absolute -bottom-6 text-[12px] font-bold text-slate-400 group-hover:text-blue-600 transition-colors uppercase">{months[i]}</span>
+                         </div>
+                      );
+                   })}
+                 </div>
+              </div>
+            </div>
+         </motion.div>
+
+         {/* PIE/DISTRIBUTION (1/3 width) */}
+         <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6 }}
+            className="bg-white rounded-2xl border border-slate-100 shadow-sm flex flex-col overflow-hidden"
+         >
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">Mặt hàng vi phạm</h2>
+                <p className="text-sm text-slate-500 font-medium mt-1">Cơ cấu theo ngành hàng</p>
+              </div>
+            </div>
+            
+            <div className="p-6 flex-1 flex flex-col items-center justify-start">
+              {/* CSS Donut Chart */}
+              <div className="relative w-52 h-52 rounded-full flex items-center justify-center mt-4 mb-8 shadow-xl shadow-slate-200/50"
+                   style={{
+                     background: `conic-gradient(
+                       ${CATEGORIES[0].color} 0% ${CATEGORIES[0].pct}%, 
+                       ${CATEGORIES[1].color} ${CATEGORIES[0].pct}% ${CATEGORIES[0].pct + CATEGORIES[1].pct}%, 
+                       ${CATEGORIES[2].color} ${CATEGORIES[0].pct + CATEGORIES[1].pct}% ${CATEGORIES[0].pct + CATEGORIES[1].pct + CATEGORIES[2].pct}%, 
+                       ${CATEGORIES[3].color} ${CATEGORIES[0].pct + CATEGORIES[1].pct + CATEGORIES[2].pct}% 100%
+                     )`
+                   }}
+              >
+                {/* Donut hole */}
+                <div className="absolute inset-2 bg-white rounded-full shadow-inner flex flex-col items-center justify-center">
+                  <span className="text-3xl font-bold text-slate-800">100%</span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Tỷ trọng</span>
+                </div>
+              </div>
+
+              <div className="w-full space-y-4">
+                {CATEGORIES.map((cat, i) => (
+                  <div key={i} className="flex items-center justify-between group p-2 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
+                    <div className="flex items-center gap-3">
+                       <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: cat.color }} />
+                       <span className="text-[13px] font-bold text-slate-700 group-hover:text-blue-600 transition-colors">{cat.name}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                       <span className="text-[13px] font-bold text-slate-900">{cat.pct}%</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+         </motion.div>
       </div>
 
-      {/* Summary */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-        <div className="bg-blue-50 p-5 lg:p-6 rounded-xl border-l-4 border-blue-900">
-          <h3 className="font-bold text-blue-900 mb-2 lg:mb-3 text-base">📌 Điểm nổi bật</h3>
-          <ul className="text-gray-700 text-sm space-y-1.5 lg:space-y-2">
-            <li>✓ Tăng 19.3% so với năm trước</li>
-            <li>✓ Nhãn hiệu là loại chiếm tỷ lệ lớn nhất (43%)</li>
-            <li>✓ Tất cả loại SHTT đều tăng trưởng dương</li>
-          </ul>
-        </div>
-        <div className="bg-yellow-50 p-5 lg:p-6 rounded-xl border-l-4 border-yellow-500">
-          <h3 className="font-bold text-blue-900 mb-2 lg:mb-3 text-base">🎯 Mục tiêu 2025</h3>
-          <ul className="text-gray-700 text-sm space-y-1.5 lg:space-y-2">
-            <li>• Đạt 65,000 đăng ký SHTT</li>
-            <li>• Giảm 30% hàng giả nhập khẩu</li>
-            <li>• Cải thiện thời gian xử lý hồ sơ</li>
-          </ul>
-        </div>
+      {/* BOTTOM REPORTS ROW */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">
+        
+        {/* TOP LOCATIONS / HEATMAP STAND-IN */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
+        >
+          <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div className="flex items-center gap-3">
+               <div className="p-2 bg-rose-100 text-rose-600 rounded-lg">
+                  <MapPin className="w-5 h-5" />
+               </div>
+               <h3 className="text-base font-bold text-slate-900">Điểm nóng vi phạm</h3>
+            </div>
+            <span className="text-xs font-bold text-rose-600 uppercase tracking-wider bg-rose-50 px-3 py-1 rounded-full">Top Cửa khẩu</span>
+          </div>
+          <div className="p-6 space-y-6">
+             {LOCATION_DATA.map((loc, i) => (
+               <div key={i} className="group">
+                 <div className="flex justify-between items-end mb-2">
+                   <span className="text-[14px] font-bold text-slate-700">{loc.name}</span>
+                   <span className="text-[14px] font-bold text-slate-900">{loc.value}</span>
+                 </div>
+                 <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                    <motion.div 
+                       initial={{ width: 0 }}
+                       whileInView={{ width: `${loc.level}%` }}
+                       transition={{ duration: 1, delay: 0.2 + (i * 0.1) }}
+                       className={`h-full rounded-full ${i === 0 ? 'bg-rose-500' : i === 1 ? 'bg-orange-500' : 'bg-blue-500'}`}
+                    />
+                 </div>
+               </div>
+             ))}
+          </div>
+        </motion.div>
+
+        {/* RECENT INTELLIGENCE LOGS */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+          className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col"
+        >
+          <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div className="flex items-center gap-3">
+               <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
+                  <Activity className="w-5 h-5" />
+               </div>
+               <h3 className="text-base font-bold text-slate-900">Nhật ký tác nghiệp trực tiếp</h3>
+            </div>
+            <button 
+              onClick={() => setShowLogsModal(true)}
+              className="text-sm font-bold text-blue-600 hover:text-blue-800"
+            >
+              Xem tất cả
+            </button>
+          </div>
+          <div className="p-0 flex-1 overflow-x-auto">
+            <table className="w-full text-left text-sm whitespace-nowrap">
+               <thead className="bg-white text-slate-400 text-xs uppercase tracking-wider font-bold">
+                  <tr>
+                     <th className="px-6 py-4">Tình trạng</th>
+                     <th className="px-6 py-4">Sự vụ / Lô hàng</th>
+                     <th className="px-6 py-4">Nhãn hiệu</th>
+                  </tr>
+               </thead>
+               <tbody className="divide-y divide-slate-50">
+                  {LOGS_DATA.slice(0,3).map((log, i) => (
+                    <tr key={i} className="hover:bg-slate-50/80 transition-colors">
+                       <td className="px-6 py-4">
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${log.badge}`}>
+                             <div className={`w-1.5 h-1.5 rounded-full ${log.dot}`} /> {log.status}
+                          </span>
+                       </td>
+                       <td className="px-6 py-4 font-bold text-slate-800">
+                          {log.title}
+                          <span className="block text-xs font-medium text-slate-500 mt-0.5">{log.loc}</span>
+                       </td>
+                       <td className="px-6 py-4 font-semibold text-slate-600">{log.brands}</td>
+                    </tr>
+                  ))}
+               </tbody>
+            </table>
+          </div>
+        </motion.div>
       </div>
 
-      {/* Back Link */}
-      <Link href="/" className="text-blue-600 hover:underline">
-        ← Quay lại trang chính
-      </Link>
+      {/* FULL LOGS MODAL */}
+      <AnimatePresence>
+        {showLogsModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              onClick={() => setShowLogsModal(false)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-4xl max-h-[80vh] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-slate-50/50">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-xl bg-blue-100 text-blue-600">
+                    <Activity className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900">Chi tiết nhật ký tác nghiệp</h2>
+                    <p className="text-sm font-medium text-slate-500">Toàn bộ 24h qua</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowLogsModal(false)}
+                  className="p-2 rounded-full hover:bg-slate-200 text-slate-500 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto p-0">
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                   <thead className="bg-white sticky top-0 shadow-sm text-slate-400 text-xs uppercase tracking-wider font-bold z-10">
+                      <tr>
+                         <th className="px-6 py-4">Tình trạng</th>
+                         <th className="px-6 py-4">Sự vụ / Lô hàng</th>
+                         <th className="px-6 py-4">Địa điểm</th>
+                         <th className="px-6 py-4">Nhãn hiệu liên quan</th>
+                      </tr>
+                   </thead>
+                   <tbody className="divide-y divide-slate-50">
+                      {LOGS_DATA.map((log, i) => (
+                        <tr key={i} className="hover:bg-slate-50/80 transition-colors">
+                           <td className="px-6 py-4">
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${log.badge}`}>
+                                 <div className={`w-1.5 h-1.5 rounded-full ${log.dot}`} /> {log.status}
+                              </span>
+                           </td>
+                           <td className="px-6 py-4 font-semibold text-slate-800">{log.title}</td>
+                           <td className="px-6 py-4 font-medium text-slate-500">{log.loc}</td>
+                           <td className="px-6 py-4 font-semibold text-slate-600">{log.brands}</td>
+                        </tr>
+                      ))}
+                   </tbody>
+                </table>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <ChatBot />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "rhel-debian-pg-3.0.x"]
 }
 
 datasource db {

@@ -1,43 +1,28 @@
 import './globals.css'
-import Sidebar from '../components/Sidebar'
 import { ReactNode } from "react";
 import { AuthProvider } from './providers';
-import { Inter } from 'next/font/google';
+import { Montserrat } from 'next/font/google';
+import AppLayoutWrapper from '../components/AppLayoutWrapper';
 
-const inter = Inter({ 
+const montserrat = Montserrat({ 
   subsets: ['latin', 'vietnamese'],
   display: 'swap',
-  variable: '--font-inter',
+  variable: '--font-sans',
 });
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="vi" className={`${inter.variable}`}>
+    <html lang="vi" className={`${montserrat.variable} selection:bg-blue-200 selection:text-blue-900`}>
       <head>
-        <title>Hải Quan SHTT - Trợ lý AI Thông Minh</title>
+        <title>Hải Quan SHTT — Hệ thống quản lý chuyên ngành</title>
+        <meta name="description" content="Hệ thống quản trị và tra cứu Sở hữu trí tuệ Hải quan Việt Nam" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-        <style>{`
-          * { -webkit-tap-highlight-color: transparent; }
-          input, textarea, select { font-size: 16px !important; }
-          body { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-        `}</style>
       </head>
-      <body className="bg-[#f8fafc] text-slate-900 antialiased selection:bg-blue-600/10">
+      <body className="antialiased min-h-screen flex bg-slate-50 text-slate-900 font-sans">
         <AuthProvider>
-          <div className="flex min-h-screen relative overflow-hidden">
-            {/* Ambient Background Accents */}
-            <div className="fixed inset-0 pointer-events-none -z-10">
-              <div className="absolute top-0 right-[-10%] w-[50%] h-[50%] bg-blue-100/30 blur-[130px] rounded-full" />
-              <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-100/20 blur-[120px] rounded-full" />
-            </div>
-
-            <Sidebar />
-            <main className="flex-1 min-h-screen relative z-10 transition-all duration-500 ease-in-out">
-              <div className="p-4 pt-24 lg:p-10 lg:pt-10 max-w-7xl mx-auto">
-                {children}
-              </div>
-            </main>
-          </div>
+          <AppLayoutWrapper>
+             {children}
+          </AppLayoutWrapper>
         </AuthProvider>
       </body>
     </html>

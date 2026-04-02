@@ -1,164 +1,146 @@
 'use client';
 
-import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { 
-  Bot, 
-  History, 
-  FileText, 
-  Search, 
-  BarChart3, 
-  BookOpen, 
-  Menu, 
-  X,
-  Sparkles,
-  ChevronRight,
-  ShieldCheck
+  Home, Search, FileText, History, BarChart3, 
+  Menu, X, Shield, ChevronRight, UserCircle, Bell
 } from 'lucide-react';
+
+const NAV_ITEMS = [
+  { label: 'Tổng quan', icon: Home, href: '/' },
+  { label: 'Tra cứu hồ sơ', icon: Search, href: '/tra-cuu' },
+  { label: 'Văn bản pháp luật', icon: FileText, href: '/van-ban-phap-luat' },
+  { label: 'Lịch sử SHTT', icon: History, href: '/lich-su-shtt' },
+  { label: 'Báo cáo thống kê', icon: BarChart3, href: '/thong-ke-shtt' },
+];
+
+const USER_ITEMS = [
+  { label: 'Tài khoản cá nhân', icon: UserCircle, href: '/tai-khoan' },
+];
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    setIsMobileOpen(false);
+    setMobileOpen(false);
   }, [pathname]);
-
-  const menuItems = [
-    { id: 'trợ lý shtt', label: 'Trợ lý SHTT', subLabel: '3 trợ lý', icon: Bot, href: '/', activeIcon: true },
-    { id: 'lịch sử shtt', label: 'Lịch sử SHTT', subLabel: '3 trợ lý', icon: History, href: '/lich-su-shtt' },
-    { id: 'văn bản pháp luật', label: 'Văn Bản Pháp Luật', subLabel: '3 trợ lý', icon: FileText, href: '/van-ban-phap-luat' },
-    { id: 'tra cứu', label: 'Tra Cứu', subLabel: '3 trợ lý', icon: Search, href: '/tra-cuu' },
-    { id: 'thống kê shtt', label: 'Thống Kê SHTT', subLabel: '2 trợ lý', icon: BarChart3, href: '#' },
-    { id: 'quy định pháp luật', label: 'Quy Định Pháp Luật', subLabel: '6 trợ lý', icon: ShieldCheck, href: '#' },
-  ];
 
   return (
     <>
-      {/* Mobile Menu Trigger */}
+      {/* Mobile Toggle */}
       <button
-        onClick={() => setIsMobileOpen(!isMobileOpen)}
-        className="fixed top-5 left-5 z-50 lg:hidden w-10 h-10 bg-[#1a2b56] text-white rounded-lg flex items-center justify-center shadow-lg active:scale-90"
+        onClick={() => setMobileOpen(!mobileOpen)}
+        className="fixed top-4 left-4 z-50 lg:hidden w-10 h-10 bg-white text-slate-900 rounded-lg flex items-center justify-center border border-slate-200 shadow-sm"
       >
-        {isMobileOpen ? <X size={20} /> : <Menu size={20} />}
+        {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
 
-      {/* Sidebar Container */}
-      <aside className={`fixed left-0 top-0 h-screen z-40 transition-transform duration-300 lg:translate-x-0 ${
-        isMobileOpen ? 'translate-x-0' : '-translate-x-full'
-      } w-64 bg-[#1a2b56] border-r border-white/5 flex flex-col`}>
-        
-        {/* Gold Accent Line (Active Indicator global) - handled item by item */}
+      {/* Mobile Overlay */}
+      {mobileOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden" 
+          onClick={() => setMobileOpen(false)} 
+        />
+      )}
 
-        {/* Logo Section */}
-        <div className="pt-10 pb-8 px-6 flex flex-col items-center">
-          <div className="relative w-20 h-20 mb-4">
-             <Image 
-               src="/logoHQdaxoanen.png" 
-               alt="SHTT Hải Quan" 
-               fill
-               className="object-contain"
-             />
+      {/* SIDEBAR: ENTERPRISE NAVY */}
+      <aside className={`
+        fixed top-0 left-0 h-screen z-40 w-[260px]
+        bg-slate-900 text-slate-300
+        flex flex-col
+        transition-transform duration-300 ease-in-out
+        lg:translate-x-0 lg:sticky
+        ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
+        {/* BRANDING */}
+        <div className="p-6 pb-4">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm shrink-0">
+               <Image src="/logoHQdaxoanen.png" alt="HQ Logo" width={28} height={28} className="object-contain" />
+            </div>
+            <div>
+               <h1 className="text-base font-semibold text-white leading-tight">Hải Quan Việt Nam</h1>
+               <p className="text-xs text-slate-400 font-medium mt-0.5 tracking-wider uppercase">Sở Hữu Trí Tuệ</p>
+            </div>
           </div>
-          <div className="text-center">
-            <h1 className="text-lg font-black text-[#facc15] tracking-tight leading-none mb-1">SHTT Hải Quan</h1>
-            <p className="text-[10px] font-bold text-white uppercase tracking-wider opacity-90">Sở hữu trí tuệ Hải quan</p>
-          </div>
-          <div className="w-full h-[1px] bg-white/10 mt-6" />
         </div>
 
-        {/* Navigation Items */}
-        <nav className="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar pt-2">
-          {menuItems.map((item) => {
+        {/* NAVIGATION */}
+        <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
+          <div className="px-3 mb-2 mt-4">
+             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Chức năng nghiệp vụ</span>
+          </div>
+          {NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
-            
             return (
               <Link
-                key={item.id}
+                key={item.href}
                 href={item.href}
-                className={`group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 relative ${
-                  isActive 
-                    ? 'bg-white/10 text-white' 
-                    : 'text-blue-200/60 hover:bg-white/5 hover:text-white'
-                }`}
+                 className={`
+                  group flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all
+                  ${isActive 
+                    ? 'bg-blue-600 text-white' 
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  }
+                `}
               >
-                {/* Gold Indicator Line */}
-                {isActive && (
-                  <div className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-[#facc15] rounded-r-full shadow-[2px_0_10px_#facc15]" />
-                )}
-
-                <div className={`p-1.5 rounded-lg transition-colors ${
-                  isActive ? 'text-[#facc15]' : 'group-hover:text-[#facc15]'
-                }`}>
-                  <Icon size={18} strokeWidth={2.5} />
+                <div className="flex items-center gap-3">
+                   <Icon className={`w-4 h-4 ${isActive ? 'text-blue-200' : 'text-slate-500 group-hover:text-slate-300'}`} />
+                   <span>{item.label}</span>
                 </div>
-
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-black tracking-tight line-clamp-1">
-                      {item.label}
-                    </span>
-                    {item.label === 'Tra Cứu' && (
-                      <span className="flex items-center gap-1 bg-emerald-500/20 text-emerald-400 text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md border border-emerald-500/20">
-                         Eng
-                      </span>
-                    )}
-                    {item.label === 'Trợ lý SHTT' && (
-                      <span className="flex items-center gap-1 bg-purple-500/20 text-purple-400 text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md border border-purple-500/20">
-                         Mkt
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-[9px] font-bold opacity-60 tracking-wider group-hover:opacity-100">{item.subLabel}</span>
-                </div>
-
-                {isActive && <div className="ml-auto w-1.5 h-1.5 bg-[#facc15] rounded-full" />}
               </Link>
             );
           })}
         </nav>
 
-        {/* Skill Orchestration Status */}
-        <div className="px-6 pb-6 space-y-3">
-          <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10">
-            <div className="flex items-center justify-between mb-2">
-               <span className="text-[9px] font-black text-blue-200/60 uppercase tracking-widest">Skill Orchestration</span>
-               <div className="flex gap-1">
-                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                 <div className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" style={{ animationDelay: '0.5s' }} />
-               </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[8px] font-bold text-white/40 uppercase">Engineer</span>
-                <span className="text-[8px] font-black text-emerald-400">ACTIVE</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[8px] font-bold text-white/40 uppercase">Marketing</span>
-                <span className="text-[8px] font-black text-purple-400">ACTIVE</span>
-              </div>
-            </div>
+        {/* USER / SYSTEM STATUS */}
+        <div className="p-4 border-t border-slate-800">
+          <div className="flex items-center justify-between px-2 py-3 rounded-lg bg-slate-800/50">
+             <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center border border-slate-600">
+                   <Shield className="w-4 h-4 text-emerald-400" />
+                </div>
+                <div>
+                   <p className="text-xs font-semibold text-white">Hệ thống bảo mật</p>
+                   <p className="text-[10px] text-emerald-400 font-medium">Hoạt động tốt</p>
+                </div>
+             </div>
           </div>
           
-          <div className="bg-yellow-500/5 rounded-2xl p-4 border border-yellow-500/10 hidden lg:block">
-            <div className="flex items-center gap-2 mb-2">
-               <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-               <span className="text-[10px] font-black text-blue-200 uppercase tracking-widest">Hệ thống sẵn sàng</span>
-            </div>
-            <p className="text-[9px] font-bold text-blue-300 leading-tight">Mọi truy vấn SHTT đều được bảo mật và mã hóa.</p>
+          <div className="mt-4 px-3 mb-2">
+             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Cá nhân</span>
+          </div>
+          <div className="space-y-1">
+            {USER_ITEMS.map((item) => {
+              const isActive = pathname === item.href;
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`
+                    group flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all
+                    ${isActive 
+                      ? 'bg-blue-600 text-white' 
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-3">
+                     <Icon className={`w-4 h-4 ${isActive ? 'text-blue-200' : 'text-slate-500 group-hover:text-slate-300'}`} />
+                     <span>{item.label}</span>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
-
-        {/* Sidebar Border Decor */}
-        <div className="absolute top-0 right-0 h-full w-[2px] bg-[#facc15]" />
       </aside>
-
-      {/* Spacer for Desktop */}
-      <div className="hidden lg:block w-64 shrink-0" />
     </>
   );
 }
