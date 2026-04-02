@@ -19,12 +19,13 @@ export default function SignIn() {
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
-    // Sử dụng 'credentials' giả lập vì hệ thống không có API Google Key
-    await signIn('credentials', { 
-       username: 'admin', 
-       password: 'password',
-       callbackUrl: '/' 
-    });
+    try {
+      // Đã kích hoạt Google OAuth thật
+      await signIn('google', { callbackUrl: '/' });
+    } catch (error) {
+      console.error('Lỗi khi gọi Google Login:', error);
+      setIsLoading(false);
+    }
   };
 
   return (
