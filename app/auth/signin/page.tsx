@@ -214,7 +214,7 @@ export default function SignIn() {
                    onClick={() => setIsLoginView(false)}
                    className={`pb-3 border-b-2 text-sm font-bold tracking-wide transition-colors ${!isLoginView ? 'border-blue-600 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
                  >
-                    Ghi danh mới
+                    Đăng ký mới
                  </button>
               </div>
 
@@ -231,7 +231,7 @@ export default function SignIn() {
                     <img src="https://authjs.dev/img/providers/google.svg" alt="Google" className="w-5 h-5" />
                   )}
                   <span className="text-[14px]">
-                    {isLoading ? 'Đang xác thực...' : (isLoginView ? 'Đăng nhập tự động với Gmail' : 'Ghi danh nhanh qua Gmail')}
+                    {isLoading ? 'Đang xác thực...' : (isLoginView ? 'Đăng nhập tự động với Gmail' : 'Đăng ký nhanh qua Gmail')}
                   </span>
                 </button>
 
@@ -304,7 +304,7 @@ export default function SignIn() {
                   <button
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-blue-600/20 transition-all focus:ring-4 focus:ring-blue-100 active:scale-[0.98]"
                   >
-                    {isLoginView ? 'Đăng nhập Hệ thống' : 'Gửi yêu cầu Ghi danh'}
+                    {isLoginView ? 'Đăng nhập Hệ thống' : 'Gửi yêu cầu Đăng ký'}
                   </button>
                 </div>
 
