@@ -1,35 +1,80 @@
 [
   {
     "id": "33871",
-    "title": "Công văn 33871/CHQ-GSQL về nhãn hiệu INGCO",
-    "content": "Cập nhật thông tin và gia hạn thời hạn kiểm tra, giám sát hàng hóa XNK có yêu cầu bảo hộ quyền SHTT mang nhãn hiệu INGCO của SUZHOU DAKE MACHINERY CO., LTD. Thời hạn đến ngày 19/11/2027.",
+    "title": "Công văn 33871/CHQ-GSQL - Nhãn hiệu INGCO",
+    "content": "Cập nhật thông tin và gia hạn kiểm tra, giám sát hàng hóa SHTT nhãn hiệu INGCO. Thời hạn đến 19/11/2027[cite: 3, 8, 10].",
     "type": "Công văn",
     "category": "Sản phẩm xác thực",
     "brand": "INGCO",
-    "documentNumber": "33871/CHQ-GSQL",
     "date": "2025-11-05",
-    "fileUrl": "/documents/33871.pdf"
+    "fileUrl": "/33871_05112025_INGCO.pdf"
   },
   {
     "id": "27317",
-    "title": "Công văn 27317/CHQ-GSQL về nhãn hiệu PIXEL",
-    "content": "Gia hạn thời hạn kiểm tra, giám sát hàng hóa XNK có yêu cầu bảo hộ quyền SHTT mang nhãn hiệu PIXEL thuộc chủ sở hữu GOOGLE LLC. Thời hạn đến ngày 13/10/2027.",
+    "title": "Công văn 27317/CHQ-GSQL - Nhãn hiệu PIXEL",
+    "content": "Gia hạn kiểm tra, giám sát hàng hóa SHTT nhãn hiệu PIXEL thuộc Google LLC. Thời hạn đến 13/10/2027[cite: 31, 36, 38].",
     "type": "Công văn",
     "category": "Sản phẩm xác thực",
     "brand": "PIXEL",
-    "documentNumber": "27317/CHQ-GSQL",
     "date": "2025-10-02",
-    "fileUrl": "/documents/27317.pdf"
+    "fileUrl": "/27317_02102025_Pixel.pdf"
   },
   {
     "id": "29600",
-    "title": "Công văn 29600/CHQ-GSQL về nhãn hiệu HERMES",
-    "content": "Gia hạn thời hạn kiểm tra, giám sát hàng hóa XNK có yêu cầu bảo hộ quyền SHTT mang nhãn hiệu Hình theo văn bằng 800232, 805531A, 806207 thuộc Hermes International. Thời hạn đến ngày 10/11/2027.",
+    "title": "Công văn 29600/CHQ-GSQL - Nhãn hiệu HERMES",
+    "content": "Gia hạn kiểm tra, giám sát hàng hóa SHTT nhãn hiệu HERMES thuộc Hermes International. Thời hạn đến 10/11/2027[cite: 64, 69, 71].",
     "type": "Công văn",
     "category": "Sản phẩm xác thực",
     "brand": "HERMES",
-    "documentNumber": "29600/CHQ-GSQL",
     "date": "2025-10-15",
-    "fileUrl": "/documents/29600.pdf"
+    "fileUrl": "/24541_16092025_Hermes.pdf"
+  },
+  {
+    "id": "105",
+    "title": "Nghị định 105/2006/NĐ-CP",
+    "content": "Hướng dẫn thi hành Luật Sở hữu trí tuệ về bảo vệ quyền SHTT và quản lý nhà nước về SHTT.",
+    "type": "Văn bản pháp quy",
+    "category": "Pháp luật",
+    "date": "2025-12-30",
+    "fileUrl": "/105_2006_ND-CP__H_t_hi_u_l_c_30.12.2025_.pdf"
+  },
+  {
+    "id": "126",
+    "title": "Nghị định 126/2021/NĐ-CP",
+    "content": "Sửa đổi, bổ sung một số điều của các Nghị định quy định xử phạt vi phạm hành chính trong lĩnh vực sở hữu công nghiệp.",
+    "type": "Văn bản pháp quy",
+    "category": "Pháp luật",
+    "date": "2021",
+    "fileUrl": "/126_2021_ND-CP_499367.pdf"
+  },
+  {
+    "id": "17738",
+    "title": "Thông báo 17738 - Thẻ nhớ MICRO SD",
+    "content": "Kiểm tra, giám sát hàng hóa SHTT đối với các loại thẻ nhớ MICRO SD, SDHC, SDXC.",
+    "type": "Thông báo",
+    "category": "Sản phẩm xác thực",
+    "brand": "SD",
+    "date": "2025-08-05",
+    "fileUrl": "/17738_05082025_MICRO_SD_HC_MICRO_SD_XC_v__SD_S..."
+  },
+  {
+    "id": "27892",
+    "title": "Thông báo 27892 - COMFORT, LIFEBUOY, DOVE, SUNSILK",
+    "content": "Kiểm tra, giám sát hàng hóa SHTT đối với các nhãn hiệu hóa mỹ phẩm gia dụng.",
+    "type": "Thông báo",
+    "category": "Sản phẩm xác thực",
+    "brand": "UNILEVER",
+    "date": "2025-10-06",
+    "fileUrl": "/27892_06102025_COMFORT__LIFEBUOY__DOVE__SUNSILK..."
+  },
+  {
+    "id": "28540",
+    "title": "Thông báo 28540 - Nhãn hiệu OAKLEY",
+    "content": "Kiểm tra, giám sát hàng hóa SHTT đối với nhãn hiệu kính mắt và phụ kiện Oakley.",
+    "type": "Thông báo",
+    "category": "Sản phẩm xác thực",
+    "brand": "OAKLEY",
+    "date": "2025-10-08",
+    "fileUrl": "/28540_08102025_Oakley.pdf"
   }
 ]
