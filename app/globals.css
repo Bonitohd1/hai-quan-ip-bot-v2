@@ -13,29 +13,38 @@
     --accent-foreground: #ffffff;
     --muted: #f1f5f9; /* slate-100 */
     --muted-foreground: #64748b; /* slate-500 */
-    /* Custom animations */
+    
+    /* Premium UI Variables */
+    --navy: #0f172a;
+    --navy-deep: #020617;
+    --surface: #ffffff;
+    --surface-glass: rgba(255, 255, 255, 0.85);
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
   }
 
-  @keyframes scan {
-    0%, 100% { transform: translateY(0); opacity: 0; }
-    10% { opacity: 1; }
-    50% { transform: translateY(100px); opacity: 1; }
-    90% { opacity: 0; }
-  }
-
-  /* Dark mode support (optional but clean) */
+  /* Dark mode support */
   .dark {
-    --background: #0f172a; /* slate-900 */
-    --foreground: #f8fafc; /* slate-50 */
-    --card: #1e293b; /* slate-800 */
-    --card-foreground: #f1f5f9; /* slate-100 */
-    --border: #334155; /* slate-700 */
-    --primary: #3b82f6; /* blue-500 */
+    --background: #020617;
+    --foreground: #f8fafc;
+    --card: #0f172a;
+    --card-foreground: #f1f5f9;
+    --border: #1e293b;
+    --primary: #3b82f6;
     --primary-foreground: #ffffff;
-    --accent: #fbbf24; /* amber-400 */
-    --accent-foreground: #0f172a;
-    --muted: #334155; /* slate-700 */
-    --muted-foreground: #94a3b8; /* slate-400 */
+    --accent: #fbbf24;
+    --accent-foreground: #020617;
+    --muted: #1e293b;
+    --muted-foreground: #94a3b8;
+    
+    --navy: #0f172a;
+    --navy-deep: #020617;
+    --surface: #1e293b;
+    --surface-glass: rgba(15, 23, 42, 0.9);
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #64748b;
   }
 
   body {
