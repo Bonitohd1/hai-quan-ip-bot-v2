@@ -15,7 +15,7 @@ async function check() {
     }
   });
   console.log(`HERMES_DOCS: ${hermes.length}`);
-  hermes.forEach(h => console.log(` - ${h.code}: ${h.name} (${h.filename})`));
+  hermes.forEach((h: any) => console.log(` - ${h.code}: ${h.name} (${h.filename})`));
 }
 
 check().finally(() => prisma.$disconnect());
