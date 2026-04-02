@@ -10,15 +10,15 @@ import {
 } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { label: 'T?ng quan', icon: Home, href: '/' },
-  { label: 'Tra c?u h? so', icon: Search, href: '/tra-cuu' },
-  { label: 'Van b?n ph�p lu?t', icon: FileText, href: '/van-ban-phap-luat' },
-  { label: 'L?ch s? SHTT', icon: History, href: '/lich-su-shtt' },
-  { label: 'B�o c�o th?ng k�', icon: BarChart3, href: '/thong-ke-shtt' },
+  { label: 'Tổng quan', icon: Home, href: '/' },
+  { label: 'Tra cứu hồ sơ', icon: Search, href: '/tra-cuu' },
+  { label: 'Văn bản pháp luật', icon: FileText, href: '/van-ban-phap-luat' },
+  { label: 'Lịch sử SHTT', icon: History, href: '/lich-su-shtt' },
+  { label: 'Báo cáo thống kê', icon: BarChart3, href: '/thong-ke-shtt' },
 ];
 
 const USER_ITEMS = [
-  { label: 'T�i kho?n c� nh�n', icon: UserCircle, href: '/tai-khoan' },
+  { label: 'Tài khoản cá nhân', icon: UserCircle, href: '/tai-khoan' },
 ];
 
 export default function Sidebar() {
@@ -45,15 +45,15 @@ export default function Sidebar() {
         />
       )}
 
-      <aside className={\
-        fixed top-0 left-0 h-screen z-40 w-[270px]\
-        bg-[#090e17] text-slate-300\
-        flex flex-col border-r border-[#1a2333]\
-        shadow-[4px_0_24px_rgba(0,0,0,0.5)]\
-        transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]\
-        lg:translate-x-0 lg:sticky lg:shadow-none\
-        \\
-      }>
+      <aside className={`
+        fixed top-0 left-0 h-screen z-40 w-[270px]
+        bg-[#090e17] text-slate-300
+        flex flex-col border-r border-[#1a2333]
+        shadow-[4px_0_24px_rgba(0,0,0,0.5)]
+        transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]
+        lg:translate-x-0 lg:sticky lg:shadow-none
+        ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
         {/* Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-amber-500/5 rounded-full blur-[80px] pointer-events-none" />
 
@@ -71,10 +71,10 @@ export default function Sidebar() {
             </div>
             <div className="relative z-10">
                <h1 className="text-[16px] font-black tracking-tight text-white leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300">
-                 H?i Quan Vi?t Nam
+                 Hải Quan Việt Nam
                </h1>
                <p className="text-[9px] font-black mt-1 tracking-[0.2em] uppercase text-amber-500/90 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]">
-                  S? H?u Tr� Tu?
+                  Sở Hữu Trí Tuệ
                </p>
             </div>
           </div>
@@ -84,7 +84,7 @@ export default function Sidebar() {
         {/* NAVIGATION */}
         <nav className="flex-1 px-4 mt-4 space-y-1 overflow-y-auto relative z-10">
           <div className="px-3 mb-3 mt-2">
-             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500/80">Nghi?p v? c?t l�i</span>
+             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500/80">Nghiệp vụ cốt lõi</span>
           </div>
           
           {NAV_ITEMS.map((item) => {
@@ -95,10 +95,13 @@ export default function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={\
-                  group flex items-center justify-between px-3.5 py-3.5 rounded-xl text-[13px] font-bold tracking-wide transition-all duration-300 relative overflow-hidden mb-1\
-                  \\
-                }
+                className={`
+                  group flex items-center justify-between px-3.5 py-3.5 rounded-xl text-[13px] font-bold tracking-wide transition-all duration-300 relative overflow-hidden mb-1
+                  ${isActive 
+                    ? 'text-amber-400 bg-slate-800/80 shadow-[0_0_20px_rgba(0,0,0,0.2)] ring-1 ring-slate-700/50' 
+                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/40'
+                  }
+                `}
               >
                 {isActive && (
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-amber-400 to-amber-600 rounded-r-lg shadow-[0_0_12px_rgba(245,158,11,0.8)]" />
@@ -106,7 +109,7 @@ export default function Sidebar() {
                 <div className="absolute inset-0 bg-gradient-to-r from-slate-800/0 via-slate-800/60 to-slate-800/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
                 
                 <div className="flex items-center gap-3.5 relative z-10">
-                  <Icon className={w-[18px] h-[18px] transition-all duration-300 \} />
+                  <Icon className={`w-[18px] h-[18px] transition-all duration-300 ${isActive ? 'text-amber-400 drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]' : 'text-slate-500 group-hover:text-amber-200'}`} />
                   {item.label}
                 </div>
                 {isActive && <ChevronRight className="w-4 h-4 text-amber-500/50 relative z-10" />}
@@ -118,7 +121,7 @@ export default function Sidebar() {
         {/* SYSTEM STATUS */}
         <div className="p-4 relative z-10 mt-auto">
           <div className="px-3 mb-3">
-             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500/80">H? th?ng</span>
+             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500/80">Hệ thống</span>
           </div>
 
           {USER_ITEMS.map((item) => {
@@ -142,10 +145,10 @@ export default function Sidebar() {
               <Shield className="w-4 h-4 text-emerald-400 drop-shadow-[0_0_5px_rgba(52,211,153,0.5)]" />
             </div>
             <div className="relative z-10">
-              <h4 className="text-[12px] font-black text-slate-200 tracking-wide uppercase">B?o m?t da t?ng</h4>
+              <h4 className="text-[12px] font-black text-slate-200 tracking-wide uppercase">Bảo mật đa tầng</h4>
               <p className="text-[10px] font-bold tracking-widest uppercase text-emerald-400 flex items-center gap-1.5 mt-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-[pulse_1.5s_ease-in-out_infinite] shadow-[0_0_5px_rgba(52,211,153,0.8)]" />
-                M� ho� l�i E2E
+                Mã hoá lõi E2E
               </p>
             </div>
           </div>
