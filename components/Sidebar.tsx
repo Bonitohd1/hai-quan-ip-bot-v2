@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { 
@@ -67,7 +66,8 @@ export default function Sidebar() {
               <div className="w-12 h-12 bg-gradient-to-tr from-slate-800 to-slate-700 rounded-xl p-[1px] relative z-10 shadow-xl ring-1 ring-amber-500/20 group-hover:ring-amber-500/50 transition-colors">
                 <div className="w-full h-full bg-[#0d1421] rounded-[11px] flex flex-col items-center justify-center overflow-hidden">
                   <div className="absolute inset-x-0 -top-2 h-4 bg-white/5 blur-sm" />
-                  <Image src="/logoHQdaxoanen.png" alt="HQ Logo" width={32} height={32} className="object-contain" unoptimized />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/logoHQdaxoanen.png" alt="HQ Logo" width={32} height={32} className="object-contain" />
                 </div>
               </div>
             </div>
