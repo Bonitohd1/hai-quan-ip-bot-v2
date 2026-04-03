@@ -6,7 +6,7 @@ async function main() {
   
   console.log(`Total documents: ${count}`);
   console.log('\nFirst 3 documents:');
-  documents.forEach(doc => {
+  documents.forEach((doc: { code: string; name: string }) => {
     console.log(`- ${doc.code}: ${doc.name}`);
   });
 }
